@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>klosetbykiandka · Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--dark:#2c2420;--mid:#7a5f5a;--light:#fdf8f5;--white:#fff;--blush:#f5ddd7;--rose:#e8c4bc;--gold:#c9a96e;--green:#4caf7d;--red:#e07b6a;--blue:#6a9fd8;}
+body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;-webkit-text-size-adjust:100%;}
+/* TOPBAR */
+.topbar{background:var(--dark);padding:.8rem 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#fff;} .brand span{color:var(--gold);font-style:italic;}
+.save-status{font-size:.6rem;color:#69f0ae;letter-spacing:.1em;transition:opacity .3s;}
+/* TABS */
+.tabs{display:flex;background:var(--white);border-bottom:2px solid var(--blush);overflow-x:auto;position:sticky;top:48px;z-index:99;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:.7rem .9rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;flex-shrink:0;}
+.tab.active{color:var(--dark);border-bottom-color:var(--gold);}
+/* PAGES */
+.page{display:none;padding:1rem;max-width:600px;margin:0 auto;}
+.page.active{display:block;}
+/* CARDS */
+.card{background:var(--white);padding:1rem;margin-bottom:.8rem;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
+/* BUTTONS */
+.btn{background:var(--dark);color:#fff;border:none;padding:.55rem 1rem;font-family:'Jost',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:1px;}
+.btn:active{opacity:.8;}
+.btn-gold{background:var(--gold);}
+.btn-red{background:var(--red);}
+.btn-green{background:var(--green);}
+.btn-outline{background:none;border:1px solid var(--gold);color:var(--gold);}
+.btn-sm{padding:.35rem .7rem;font-size:.58rem;}
+/* FORMS */
+.field{margin-bottom:.8rem;}
+.label{display:block;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.3rem;}
+.inp,.sel,.ta{width:100%;border:1px solid var(--rose);padding:.55rem .7rem;font-family:'Jost',sans-serif;font-size:.8rem;color:var(--dark);background:var(--light);border-radius:1px;outline:none;}
+.ta{min-height:60px;resize:vertical;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+/* BADGES */
+.badge{display:inline-block;padding:.15rem .5rem;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;font-weight:500;}
+.b-pending{background:#fff3e0;color:#e65100;} .b-confirmed{background:#e8f5e9;color:#2e7d32;}
+.b-stitching{background:#e3f2fd;color:#1565c0;} .b-alteration{background:#fce4ec;color:#ad1457;}
+.b-ready{background:#f3e5f5;color:#6a1b9a;} .b-delivered{background:#e0f2f1;color:#00695c;}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(44,36,32,.65);z-index:200;overflow-y:auto;padding:1rem 0;}
+.modal-bg.open{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:var(--white);width:calc(100% - 2rem);max-width:500px;margin:auto;border-radius:2px;}
+.modal-head{padding:.9rem 1.1rem;border-bottom:1px solid var(--blush);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;}
+.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--mid);}
+.modal-body{padding:1rem 1.1rem;}
+.modal-foot{padding:.8rem 1.1rem;border-top:1px solid var(--blush);display:flex;gap:.5rem;justify-content:flex-end;}
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1rem;}
+.stat{background:var(--white);padding:.9rem;border-radius:2px;border-left:3px solid var(--gold);cursor:pointer;}
+.stat-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);margin-bottom:.3rem;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--dark);}
+.stat-sub{font-size:.6rem;color:var(--mid);}
+/* ORDER CARDS */
+.order-card{background:var(--white);padding:.9rem;margin-bottom:.7rem;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;border-left:3px solid transparent;}
+.order-card:hover{border-left-color:var(--gold);}
+/* MEAS TABLE */
+.meas-head{background:var(--dark);color:#fff;padding:.4rem .6rem;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.3rem;}
+.meas-head.f{background:var(--rose);}
+.meas-head.m{background:var(--blue);}
+.meas-row{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:.3rem;padding:.35rem .4rem;border-bottom:1px solid var(--blush);align-items:center;}
+.meas-name{font-size:.67rem;color:var(--dark);}
+.meas-inp{border:1px solid var(--rose);padding:.3rem .4rem;font-size:.72rem;width:100%;outline:none;border-radius:1px;background:var(--white);}
+.meas-inp:focus{border-color:var(--gold);}
+.meas-note{border:1px solid #f0e8d0;padding:.3rem .4rem;font-size:.68rem;width:100%;outline:none;border-radius:1px;background:#fffdf8;}
+/* GENDER TOGGLE */
+.gender-toggle{display:flex;border:1px solid var(--rose);overflow:hidden;margin-bottom:.8rem;}
+.gender-btn{flex:1;padding:.6rem;border:none;background:var(--light);font-family:'Jost',sans-serif;font-size:.72rem;cursor:pointer;}
+.gender-btn.f.active{background:var(--rose);color:#fff;}
+.gender-btn.m.active{background:var(--blue);color:#fff;}
+/* TIMESHEET */
+.ts-table{width:100%;border-collapse:collapse;font-size:.68rem;}
+.ts-th{padding:.4rem .3rem;text-align:center;font-weight:400;font-size:.57rem;background:var(--dark);color:#fff;}
+.ts-th.gold{background:var(--gold);color:var(--dark);}
+.ts-th.green{background:var(--green);color:#fff;}
+.ts-th.red{background:var(--red);color:#fff;}
+.ts-th.today{background:var(--gold);}
+.ts-inp{width:100%;border:1px solid var(--blush);padding:.3rem .2rem;text-align:center;font-size:.7rem;outline:none;border-radius:1px;}
+.ts-inp.today{background:#f0f8f0;border-color:#a5d6a7;}
+.ts-inp.paid{background:#e8f5e9;border-color:#a5d6a7;}
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--mid);}
+.empty-icon{font-size:2rem;margin-bottom:.5rem;}
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+#loading .brand-load{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:#fff;margin-bottom:.5rem;}
+#loading .brand-load span{color:var(--gold);font-style:italic;}
+#loading p{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:.15em;}
+/* FILTER PILLS */
+.pills{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem;}
+.pill{padding:.3rem .7rem;border-radius:20px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--rose);background:var(--white);color:var(--mid);cursor:pointer;}
+.pill.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+/* ACTIVITY */
+.act-item{display:flex;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--blush);}
+.act-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:4px;}
+.act-text{font-size:.7rem;} .act-time{font-size:.58rem;color:var(--mid);}
+/* ADVANCE */
+.adv-row{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--blush);font-size:.7rem;}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="brand-load">kloset<span>by</span>kiandka</div>
+  <p>Connecting to database...</p>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+
+<div class="topbar">
+  <div class="brand">kloset<span>by</span>kiandka</div>
+  <div style="display:flex;align-items:center;gap:.8rem;">
+    <span id="save-status" class="save-status"></span>
+    <span style="font-size:.6rem;color:rgba(255,255,255,.35);" id="top-date"></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab" onclick="showTab('orders',this)">📋 Orders</button>
+  <button class="tab" onclick="showTab('customers',this)">👗 Customers</button>
+  <button class="tab" onclick="showTab('workers',this)">⏰ Workers</button>
+  <button class="tab" onclick="showTab('archive',this)">🗄 Archive</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="tab-dashboard">
+  <div class="stats">
+    <div class="stat" onclick="showTab('orders',document.querySelectorAll('.tab')[1]);setOFilter('Pending')" style="border-left-color:var(--gold)">
+      <div class="stat-label">Pending Orders</div><div class="stat-val" id="s-pending">0</div><div class="stat-sub">Tap to view →</div>
+    </div>
+    <div class="stat" onclick="showTab('customers',document.querySelectorAll('.tab')[2])" style="border-left-color:var(--green)">
+      <div class="stat-label">Customers</div><div class="stat-val" id="s-custs">0</div><div class="stat-sub">Tap to view →</div>
+    </div>
+    <div class="stat" onclick="showTab('orders',document.querySelectorAll('.tab')[1]);setOFilter('Stitching')" style="border-left-color:var(--blue)">
+      <div class="stat-label">In Stitching</div><div class="stat-val" id="s-stitch">0</div><div class="stat-sub">Tap to view →</div>
+    </div>
+    <div class="stat" onclick="showTab('orders',document.querySelectorAll('.tab')[1]);setOFilter('Ready')" style="border-left-color:#9b8fc0">
+      <div class="stat-label">Ready</div><div class="stat-val" id="s-ready">0</div><div class="stat-sub">Tap to view →</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-title" style="margin-bottom:.8rem;">Recent Activity</div>
+    <div id="activity-list"><div class="empty"><div class="empty-icon">✨</div><div>Activity appears here</div></div></div>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div class="page" id="tab-orders">
+  <div class="sec-header">
+    <div class="sec-title">Orders</div>
+    <button class="btn" onclick="openModal('add-order-modal');initOrderForm()">+ New Order</button>
+  </div>
+  <input class="inp" id="order-search" placeholder="Search customer or outfit..." oninput="renderOrders()" style="margin-bottom:.8rem;"/>
+  <div class="pills" id="order-pills">
+    <div class="pill active" onclick="setOFilter('all',this)">All</div>
+    <div class="pill" onclick="setOFilter('Pending',this)">Pending</div>
+    <div class="pill" onclick="setOFilter('Stitching',this)">Stitching</div>
+    <div class="pill" onclick="setOFilter('Alteration',this)">Alteration</div>
+    <div class="pill" onclick="setOFilter('Ready',this)">Ready</div>
+    <div class="pill" onclick="setOFilter('Delivered',this)">Delivered</div>
+  </div>
+  <div id="orders-list"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div class="page" id="tab-customers">
+  <div class="sec-header">
+    <div class="sec-title">Customers</div>
+    <button class="btn" onclick="openModal('add-cust-modal');initCustForm()">+ Add Customer</button>
+  </div>
+  <div class="pills">
+    <div class="pill active" id="cf-all" onclick="setCFilter('all',this)">All</div>
+    <div class="pill" onclick="setCFilter('Female',this)">👩 Female</div>
+    <div class="pill" onclick="setCFilter('Male',this)">👨 Male</div>
+  </div>
+  <input class="inp" id="cust-search" placeholder="Search name or phone..." oninput="renderCustomers()" style="margin-bottom:.8rem;"/>
+  <div id="custs-list"></div>
+</div>
+
+<!-- WORKERS -->
+<div class="page" id="tab-workers">
+  <div class="sec-header">
+    <div class="sec-title">Workers</div>
+    <button class="btn" onclick="openModal('add-worker-modal')">+ Add Worker</button>
+  </div>
+  <!-- TIMESHEET -->
+  <div class="card">
+    <div class="sec-header" style="margin-bottom:.6rem;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Weekly Timesheet</div>
+      <div style="display:flex;gap:.3rem;align-items:center;">
+        <button class="btn btn-sm btn-outline" onclick="changeWeek(-1)">◀</button>
+        <span id="week-label" style="font-size:.62rem;color:var(--mid);white-space:nowrap;"></span>
+        <button class="btn btn-sm btn-outline" onclick="changeWeek(1)">▶</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="ts-table">
+        <thead>
+          <tr>
+            <th class="ts-th" style="text-align:left;min-width:80px;">Worker</th>
+            <th class="ts-th" id="th-Mon" style="min-width:38px;">Mon</th>
+            <th class="ts-th" id="th-Tue" style="min-width:38px;">Tue</th>
+            <th class="ts-th" id="th-Wed" style="min-width:38px;">Wed</th>
+            <th class="ts-th" id="th-Thu" style="min-width:38px;">Thu</th>
+            <th class="ts-th" id="th-Fri" style="min-width:38px;">Fri</th>
+            <th class="ts-th" id="th-Sat" style="min-width:38px;">Sat</th>
+            <th class="ts-th" id="th-Sun" style="min-width:38px;">Sun</th>
+            <th class="ts-th gold" style="min-width:40px;">Hrs</th>
+            <th class="ts-th gold" style="min-width:48px;">Pay</th>
+            <th class="ts-th green" style="min-width:46px;">Paid</th>
+            <th class="ts-th red" style="min-width:46px;">Bal</th>
+          </tr>
+        </thead>
+        <tbody id="ts-body"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--blush);">
+      <span style="font-size:.6rem;color:var(--mid);">Tab out of cell to save</span>
+      <button class="btn btn-sm" id="save-ts-btn" onclick="saveTimesheet()">💾 Save Week</button>
+    </div>
+  </div>
+  <!-- SUMMARY -->
+  <div class="card">
+    <div class="sec-title" style="margin-bottom:.7rem;font-size:1.1rem;">Workers Summary</div>
+    <div id="workers-summary"></div>
+  </div>
+  <!-- ADVANCES -->
+  <div class="card">
+    <div class="sec-header">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Advances</div>
+      <button class="btn btn-sm" onclick="openModal('add-adv-modal');initAdvForm()">+ Add</button>
+    </div>
+    <div id="advances-list"></div>
+  </div>
+</div>
+
+<!-- ARCHIVE -->
+<div class="page" id="tab-archive">
+  <div class="sec-header">
+    <div class="sec-title">Archive</div>
+    <button class="btn btn-sm btn-outline" onclick="clearArchive()">Clear All</button>
+  </div>
+  <div id="archive-list"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- ADD ORDER -->
+<div class="modal-bg" id="add-order-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">New Order</div><button class="modal-close" onclick="closeModal('add-order-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Customer *</label>
+        <select class="sel" id="o-cust" onchange="autoFillPhone()"><option value="">-- Select Customer --</option></select>
+        <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">No customer? <span onclick="closeModal('add-order-modal');openModal('add-cust-modal');initCustForm()" style="text-decoration:underline;cursor:pointer;">Add first →</span></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Phone</label><input class="inp" id="o-phone" type="tel" maxlength="10" placeholder="9876543210"/></div>
+        <div class="field"><label class="label">Order Date</label><input class="inp" id="o-date" type="date"/></div>
+      </div>
+      <div class="field"><label class="label">Outfit *</label><input class="inp" id="o-outfit" placeholder="e.g. Bridal Lehenga"/></div>
+      <div class="row2">
+        <div class="field"><label class="label">Amount (₹)</label><input class="inp" id="o-amount" type="number" placeholder="13000"/></div>
+        <div class="field"><label class="label">Advance (₹)</label><input class="inp" id="o-advance" type="number" placeholder="5000"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Delivery Date</label><input class="inp" id="o-delivery" type="date"/></div>
+        <div class="field"><label class="label">Status</label>
+          <select class="sel" id="o-status">
+            <option>Pending</option><option>Confirmed</option><option>Stitching</option><option>Alteration</option><option>Ready</option><option>Delivered</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Notes</label><textarea class="ta" id="o-notes" placeholder="Fabric, embroidery details..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('add-order-modal')">Cancel</button>
+      <button class="btn" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW ORDER -->
+<div class="modal-bg" id="view-order-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="vo-title">Order</div><button class="modal-close" onclick="closeModal('view-order-modal')">×</button></div>
+    <div class="modal-body" id="vo-body"></div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('view-order-modal')">Close</button></div>
+  </div>
+</div>
+
+<!-- DELIVERY DATE -->
+<div class="modal-bg" id="delivery-modal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head"><div class="modal-title">Delivery Date</div><button class="modal-close" onclick="closeModal('delivery-modal')">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:.75rem;color:var(--mid);margin-bottom:.8rem;" id="del-outfit-label"></p>
+      <div class="field"><label class="label">Actual Delivery Date *</label>
+        <input class="inp" type="date" id="del-date" onchange="validateDelDate(this)"/>
+        <div id="del-date-err" style="display:none;color:var(--red);font-size:.65rem;margin-top:.3rem;">⚠️ Future dates not allowed</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('delivery-modal')">Cancel</button>
+      <button class="btn btn-green" id="del-confirm-btn" onclick="confirmDelivery()">✅ Confirm Delivered</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ORDER -->
+<div class="modal-bg" id="delete-order-modal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head"><div class="modal-title" style="color:var(--red);">Delete Order</div><button class="modal-close" onclick="closeModal('delete-order-modal')">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:.8rem;margin-bottom:.8rem;" id="del-order-name"></p>
+      <div class="field"><label class="label">Reason *</label>
+        <select class="sel" id="del-reason" onchange="document.getElementById('del-other-wrap').style.display=this.value==='Other'?'block':'none'">
+          <option value="">-- Select Reason --</option>
+          <option>Order Cancelled by Customer</option><option>Duplicate Entry</option><option>Wrong Entry</option><option>Customer Not Responding</option><option>Other</option>
+        </select>
+      </div>
+      <div id="del-other-wrap" style="display:none;" class="field"><label class="label">Specify</label><input class="inp" id="del-other" placeholder="Enter reason..."/></div>
+      <p style="font-size:.7rem;color:var(--mid);">Order will be moved to Archive.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('delete-order-modal')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmDeleteOrder()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CUSTOMER -->
+<div class="modal-bg" id="add-cust-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="cust-modal-title">Add Customer</div><button class="modal-close" onclick="closeModal('add-cust-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="row2">
+        <div class="field"><label class="label">Full Name *</label><input class="inp" id="c-name" placeholder="Customer name"/></div>
+        <div class="field"><label class="label">Phone</label><input class="inp" id="c-phone" type="tel" maxlength="10" placeholder="9876543210"/></div>
+      </div>
+      <div class="field"><label class="label">Email</label><input class="inp" id="c-email" placeholder="email (optional)"/></div>
+      <div class="field"><label class="label">Address</label><textarea class="ta" id="c-address" placeholder="House no, Street, Area, City, Pincode..." style="min-height:55px;"></textarea></div>
+      <div class="field"><label class="label">Notes / Preferences</label><textarea class="ta" id="c-notes" placeholder="e.g. prefers cotton, loose fit..." style="min-height:50px;"></textarea></div>
+      <div class="label" style="margin-bottom:.4rem;">Gender *</div>
+      <div class="gender-toggle">
+        <button class="gender-btn f active" id="gc-f" onclick="setCGender('Female')">👩 Female</button>
+        <button class="gender-btn m" id="gc-m" onclick="setCGender('Male')">👨 Male</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:.3rem;padding:.3rem .4rem;background:var(--dark);margin-bottom:.3rem;">
+        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Measurement</div>
+        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Inches</div>
+        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Notes</div>
+      </div>
+      <div id="c-meas-fields"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('add-cust-modal')">Cancel</button>
+      <button class="btn" id="cust-save-btn" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW CUSTOMER -->
+<div class="modal-bg" id="view-cust-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="vc-name">Customer</div><button class="modal-close" onclick="closeModal('view-cust-modal')">×</button></div>
+    <div class="modal-body" id="vc-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('view-cust-modal')">Close</button>
+      <button class="btn" onclick="editCurrentCustomer()">✏️ Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD WORKER -->
+<div class="modal-bg" id="add-worker-modal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head"><div class="modal-title">Add Worker</div><button class="modal-close" onclick="closeModal('add-worker-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Name *</label><input class="inp" id="w-name" placeholder="e.g. Lakshmi"/></div>
+      <div class="row2">
+        <div class="field"><label class="label">Phone</label><input class="inp" id="w-phone" type="tel" maxlength="10" placeholder="9876543210"/></div>
+        <div class="field"><label class="label">Role</label>
+          <select class="sel" id="w-role"><option>Master Tailor</option><option>Stitcher</option><option>Embroidery</option><option>Helper</option><option>Sales</option></select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Daily Rate (₹)</label><input class="inp" id="w-rate" type="number" placeholder="500"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('add-worker-modal')">Cancel</button>
+      <button class="btn" onclick="saveWorker()">Save Worker</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ADVANCE -->
+<div class="modal-bg" id="add-adv-modal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head"><div class="modal-title">Add Advance</div><button class="modal-close" onclick="closeModal('add-adv-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Worker *</label><select class="sel" id="a-worker"><option value="">-- Select Worker --</option></select></div>
+      <div class="row2">
+        <div class="field"><label class="label">Amount (₹) *</label><input class="inp" id="a-amount" type="number" placeholder="500"/></div>
+        <div class="field"><label class="label">Date *</label><input class="inp" id="a-date" type="date"/></div>
+      </div>
+      <div class="field"><label class="label">Type</label>
+        <select class="sel" id="a-type"><option value="advance">Advance Given</option><option value="repaid">Advance Repaid</option><option value="deducted">Deducted from Salary</option></select>
+      </div>
+      <div class="field"><label class="label">Notes</label><input class="inp" id="a-notes" placeholder="Reason..."/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('add-adv-modal')">Cancel</button>
+      <button class="btn" onclick="saveAdvance()">Save Advance</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE + APP SCRIPT -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCJd-slyEKXnIhC54pb4WELiEK6j9Zu9Nk",
+  authDomain: "klosetbykiandka.firebaseapp.com",
+  projectId: "klosetbykiandka",
+  storageBucket: "klosetbykiandka.firebasestorage.app",
+  messagingSenderId: "530022350443",
+  appId: "1:530022350443:web:a5b08227d5d0049abebb2e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ═══ DATA STORE ═══
+window.DB = { orders:[], customers:[], workers:[], hours:[], advances:[], archive:[], activity:[], weekPaid:{} };
+window.db = db;
+
+// ═══ HELPERS ═══
+const tod = () => new Date().toISOString().split('T')[0];
+const fmtD = d => { try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d||'';} };
+const addAct = (t) => { const now=new Date(); return {t, ts:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-IN'), createdAt:now.toISOString()}; };
+const showSave = () => { const s=document.getElementById('save-status'); if(s){s.textContent='✅ Saved';setTimeout(()=>s.textContent='',2000);} };
+
+// ═══ FIREBASE SAVE/LOAD ═══
+async function saveToFirebase(collection_name, id, data) {
+  try {
+    await setDoc(doc(db, collection_name, id), {...data, updatedAt: new Date().toISOString()});
+    showSave();
+  } catch(e) { console.error('Save error:', e); }
+}
+
+async function loadAllData() {
+  try {
+    const cols = ['orders','customers','workers','hours','advances','archive','activity'];
+    for(const col of cols) {
+      const snap = await getDocs(collection(db, col));
+      window.DB[col] = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+    // Load weekPaid
+    const wpSnap = await getDoc(doc(db, 'settings', 'weekPaid'));
+    if(wpSnap.exists()) window.DB.weekPaid = wpSnap.data() || {};
+  } catch(e) { console.error('Load error:', e); }
+}
+
+window.saveOrder = async function() {
+  const custName = document.getElementById('o-cust').value;
+  const outfit = document.getElementById('o-outfit').value.trim();
+  if(!custName || !outfit) { alert('Please select customer and enter outfit'); return; }
+  const order = {
+    customer: custName,
+    phone: document.getElementById('o-phone').value,
+    date: document.getElementById('o-date').value,
+    outfit,
+    amount: document.getElementById('o-amount').value,
+    advance: document.getElementById('o-advance').value,
+    delivery: document.getElementById('o-delivery').value,
+    status: document.getElementById('o-status').value,
+    notes: document.getElementById('o-notes').value,
+    createdAt: new Date().toISOString()
+  };
+  const docRef = await addDoc(collection(db, 'orders'), order);
+  order.id = docRef.id;
+  window.DB.orders.unshift(order);
+  const act = addAct('New order: '+outfit+' for '+custName);
+  await addDoc(collection(db, 'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('add-order-modal');
+  renderOrders(); updateDash(); showSave();
+};
+
+window.saveCustomer = async function() {
+  const name = document.getElementById('c-name').value.trim();
+  if(!name) { alert('Enter customer name'); return; }
+  const phone = document.getElementById('c-phone').value;
+  if(phone && phone.length !== 10) { alert('Phone must be 10 digits'); return; }
+  const meas = collectMeasurements();
+  const cust = {
+    name, phone,
+    email: document.getElementById('c-email').value,
+    address: document.getElementById('c-address').value,
+    notes: document.getElementById('c-notes').value,
+    gender: window.currentGender || 'Female',
+    measurements: meas,
+    createdAt: new Date().toISOString()
+  };
+  const editingId = window.editingCustId;
+  if(editingId) {
+    await setDoc(doc(db,'customers',editingId), {...cust, updatedAt: new Date().toISOString()});
+    const idx = window.DB.customers.findIndex(c=>c.id===editingId);
+    if(idx>-1) window.DB.customers[idx] = {...cust, id:editingId};
+    window.editingCustId = null;
+  } else {
+    const docRef = await addDoc(collection(db,'customers'), cust);
+    cust.id = docRef.id;
+    window.DB.customers.unshift(cust);
+  }
+  const act = addAct((editingId?'Updated':'New customer: ')+name);
+  await addDoc(collection(db,'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('add-cust-modal');
+  renderCustomers(); updateDash(); showSave();
+};
+
+window.saveWorker = async function() {
+  const name = document.getElementById('w-name').value.trim();
+  if(!name) { alert('Enter worker name'); return; }
+  const phone = document.getElementById('w-phone').value;
+  if(phone && phone.length !== 10) { alert('Phone must be 10 digits'); return; }
+  const worker = { name, phone, role: document.getElementById('w-role').value, rate: document.getElementById('w-rate').value, createdAt: new Date().toISOString() };
+  const docRef = await addDoc(collection(db,'workers'), worker);
+  worker.id = docRef.id;
+  window.DB.workers.push(worker);
+  closeModal('add-worker-modal');
+  renderWorkers(); showSave();
+  document.getElementById('w-name').value=''; document.getElementById('w-phone').value=''; document.getElementById('w-rate').value='';
+};
+
+window.saveAdvance = async function() {
+  const wid = document.getElementById('a-worker').value;
+  const amount = parseFloat(document.getElementById('a-amount').value);
+  const date = document.getElementById('a-date').value;
+  if(!wid||!amount||!date) { alert('Fill all required fields'); return; }
+  const adv = { wid, amount, date, type: document.getElementById('a-type').value, notes: document.getElementById('a-notes').value, createdAt: new Date().toISOString() };
+  const docRef = await addDoc(collection(db,'advances'), adv);
+  adv.id = docRef.id;
+  window.DB.advances.push(adv);
+  const w = window.DB.workers.find(x=>x.id===wid);
+  const act = addAct('Advance for '+(w?.name||'worker')+': ₹'+amount);
+  await addDoc(collection(db,'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('add-adv-modal');
+  renderWorkers(); showSave();
+};
+
+window.updOrderStatus = async function(id, status) {
+  if(status === 'Delivered') {
+    window.pendingDeliverId = id;
+    const o = window.DB.orders.find(x=>x.id===id);
+    document.getElementById('del-outfit-label').textContent = '"'+o.outfit+'" for '+o.customer;
+    document.getElementById('del-date').value = tod();
+    document.getElementById('del-date').max = tod();
+    document.getElementById('del-date-err').style.display='none';
+    document.getElementById('del-confirm-btn').disabled=false;
+    closeModal('view-order-modal');
+    openModal('delivery-modal');
+    return;
+  }
+  const updates = { status };
+  if(status !== 'Delivered') updates.deliveredOn = null;
+  await updateDoc(doc(db,'orders',id), updates);
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(o) { o.status=status; if(status!=='Delivered') o.deliveredOn=null; }
+  const act = addAct((o?.outfit||'')+' → '+status);
+  await addDoc(collection(db,'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('view-order-modal');
+  renderOrders(); updateDash(); showSave();
+};
+
+window.confirmDelivery = async function() {
+  const date = document.getElementById('del-date').value;
+  if(!date || date > tod()) { alert('Please select a valid date (today or past)'); return; }
+  const id = window.pendingDeliverId;
+  await updateDoc(doc(db,'orders',id), { status:'Delivered', deliveredOn:date });
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(o) { o.status='Delivered'; o.deliveredOn=date; }
+  const act = addAct((o?.outfit||'')+' delivered on '+fmtD(date));
+  await addDoc(collection(db,'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('delivery-modal');
+  renderOrders(); updateDash(); showSave();
+};
+
+window.markBalancePaid = async function(id) {
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(!o) return;
+  await updateDoc(doc(db,'orders',id), { advance: o.amount });
+  o.advance = o.amount;
+  closeModal('view-order-modal'); viewOrder(id);
+  showSave();
+};
+
+window.showDeleteOrder = function(id) {
+  window.pendingDeleteId = id;
+  const o = window.DB.orders.find(x=>x.id===id);
+  document.getElementById('del-order-name').textContent = '"'+(o?.outfit||'')+'" for '+(o?.customer||'');
+  document.getElementById('del-reason').value='';
+  document.getElementById('del-other').value='';
+  document.getElementById('del-other-wrap').style.display='none';
+  closeModal('view-order-modal');
+  openModal('delete-order-modal');
+};
+
+window.confirmDeleteOrder = async function() {
+  const reason = document.getElementById('del-reason').value;
+  if(!reason) { alert('Please select a reason'); return; }
+  const finalReason = reason==='Other' ? (document.getElementById('del-other').value||'Other') : reason;
+  const id = window.pendingDeleteId;
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(!o) return;
+  const archived = {...o, deletedOn:tod(), deleteReason:finalReason};
+  await addDoc(collection(db,'archive'), archived);
+  await deleteDoc(doc(db,'orders',id));
+  window.DB.archive.unshift(archived);
+  window.DB.orders = window.DB.orders.filter(x=>x.id!==id);
+  const act = addAct('Archived: '+(o.outfit||'')+' ('+finalReason+')');
+  await addDoc(collection(db,'activity'), act);
+  window.DB.activity.unshift(act);
+  closeModal('delete-order-modal');
+  renderOrders(); updateDash(); showSave();
+};
+
+window.restoreArchive = async function(id) {
+  const o = window.DB.archive.find(x=>x.id===id);
+  if(!o) return;
+  const {deletedOn,deleteReason,...restored} = o;
+  const docRef = await addDoc(collection(db,'orders'), {...restored, restoredAt:new Date().toISOString()});
+  await deleteDoc(doc(db,'archive',id));
+  window.DB.orders.unshift({...restored, id:docRef.id});
+  window.DB.archive = window.DB.archive.filter(x=>x.id!==id);
+  renderOrders(); renderArchive(); updateDash(); showSave();
+};
+
+window.permDeleteArchive = async function(id) {
+  await deleteDoc(doc(db,'archive',id));
+  window.DB.archive = window.DB.archive.filter(x=>x.id!==id);
+  renderArchive(); showSave();
+};
+
+window.clearArchive = async function() {
+  if(!window.DB.archive.length) { alert('Archive is empty'); return; }
+  for(const o of window.DB.archive) await deleteDoc(doc(db,'archive',o.id));
+  window.DB.archive = [];
+  renderArchive(); showSave();
+};
+
+window.delWorker = async function(id) {
+  if(!confirm('Remove this worker?')) return;
+  await deleteDoc(doc(db,'workers',id));
+  window.DB.workers = window.DB.workers.filter(x=>x.id!==id);
+  // Remove hours and advances
+  for(const h of window.DB.hours.filter(x=>x.wid===id)) await deleteDoc(doc(db,'hours',h.id));
+  window.DB.hours = window.DB.hours.filter(x=>x.wid!==id);
+  renderWorkers();
+};
+
+window.updateHourCell = async function(wid, date, val) {
+  const hrs = parseFloat(val)||0;
+  const existing = window.DB.hours.find(h=>h.wid===wid&&h.date===date);
+  if(existing) {
+    if(hrs>0) { await updateDoc(doc(db,'hours',existing.id),{hours:hrs}); existing.hours=hrs; }
+    else { await deleteDoc(doc(db,'hours',existing.id)); window.DB.hours=window.DB.hours.filter(h=>h.id!==existing.id); }
+  } else if(hrs>0) {
+    const h={wid,hours:hrs,date,notes:'Timesheet',createdAt:new Date().toISOString()};
+    const ref=await addDoc(collection(db,'hours'),h);
+    h.id=ref.id; window.DB.hours.push(h);
+  }
+  renderTimesheet();
+};
+
+window.updatePaidCell = async function(wid, weekKey, val) {
+  const paid = parseFloat(val)||0;
+  window.DB.weekPaid[weekKey] = paid;
+  await setDoc(doc(db,'settings','weekPaid'), window.DB.weekPaid);
+  renderTimesheet();
+};
+
+window.saveTimesheet = async function() {
+  await setDoc(doc(db,'settings','weekPaid'), window.DB.weekPaid);
+  const btn = document.getElementById('save-ts-btn');
+  btn.textContent='✅ Saved!'; btn.style.background='var(--green)';
+  setTimeout(()=>{ btn.textContent='💾 Save Week'; btn.style.background=''; },2000);
+};
+
+// ═══ RENDER FUNCTIONS ═══
+const STATUSES = ['Pending','Confirmed','Stitching','Alteration','Ready','Delivered'];
+const bClass = s => ({'Pending':'b-pending','Confirmed':'b-confirmed','Stitching':'b-stitching','Alteration':'b-alteration','Ready':'b-ready','Delivered':'b-delivered'}[s]||'b-pending');
+
+window.oFilter = 'all';
+window.cFilter = 'all';
+window.currentGender = 'Female';
+window.editingCustId = null;
+window.viewingCust = null;
+
+window.setOFilter = function(f, el) {
+  window.oFilter = f;
+  document.querySelectorAll('#order-pills .pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderOrders();
+};
+
+window.setCFilter = function(f, el) {
+  window.cFilter = f;
+  document.querySelectorAll('.pills .pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderCustomers();
+};
+
+window.renderOrders = function() {
+  const q = (document.getElementById('order-search')?.value||'').toLowerCase();
+  const orders = window.DB.orders.filter(o=>{
+    const m = o.customer?.toLowerCase().includes(q)||o.outfit?.toLowerCase().includes(q);
+    return window.oFilter==='all'?m:m&&o.status===window.oFilter;
+  });
+  const el = document.getElementById('orders-list');
+  if(!orders.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>No orders found</div></div>'; return; }
+  el.innerHTML = orders.map(o=>{
+    const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
+    return `<div class="order-card" onclick="viewOrder('${o.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;">
+        <div><div style="font-weight:500;font-size:.88rem;">${o.outfit||''}</div>
+        <div style="font-size:.7rem;color:var(--mid);">👤 ${o.customer||''}${o.phone?' · 📞 '+o.phone:''}</div></div>
+        <span class="badge ${bClass(o.status)}">${o.status}</span>
+      </div>
+      <div style="display:flex;gap:.7rem;font-size:.68rem;color:var(--mid);flex-wrap:wrap;">
+        ${o.amount?`<span>₹${parseInt(o.amount).toLocaleString()}</span>`:''}
+        ${o.advance?`<span style="color:var(--green)">✅ ₹${parseInt(o.advance).toLocaleString()} paid</span>`:''}
+        ${bal>0&&o.amount?`<span style="color:var(--red)">⚠️ ₹${bal.toLocaleString()} due</span>`:''}
+        ${o.delivery&&o.status!=='Delivered'?`<span style="color:var(--blue)">Due: ${fmtD(o.delivery)}</span>`:''}
+        ${o.deliveredOn&&o.status==='Delivered'?`<span style="color:var(--green)">✅ ${fmtD(o.deliveredOn)}</span>`:''}
+      </div>
+      <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">Tap to view →</div>
+    </div>`;
+  }).join('');
+};
+
+window.viewOrder = function(id) {
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(!o) return;
+  const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
+  document.getElementById('vo-title').textContent = o.outfit||'Order';
+  document.getElementById('vo-body').innerHTML = `
+    <div style="background:var(--light);padding:.8rem;border-left:3px solid var(--gold);margin-bottom:.8rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+        <span style="font-size:.8rem;font-weight:500;">👤 ${o.customer||''}</span>
+        <span class="badge ${bClass(o.status)}">${o.status}</span>
+      </div>
+      ${o.phone?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📞 ${o.phone}</div>`:''}
+      ${o.date?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📅 Order: ${fmtD(o.date)}</div>`:''}
+      ${o.delivery&&o.status!=='Delivered'?`<div style="font-size:.72rem;color:var(--blue);margin-bottom:.2rem;">🗓 Deliver By: <strong>${fmtD(o.delivery)}</strong></div>`:''}
+      ${o.deliveredOn&&o.status==='Delivered'?`<div style="font-size:.72rem;color:var(--green);">✅ Delivered On: <strong>${fmtD(o.deliveredOn)}</strong></div>`:''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
+      ${[['Total',o.amount?'₹'+parseInt(o.amount).toLocaleString():'-','var(--dark)'],['Advance',o.advance?'₹'+parseInt(o.advance).toLocaleString():'-','var(--green)'],['Balance',bal>0?'₹'+bal.toLocaleString():'Paid ✅',bal>0?'var(--red)':'var(--green)']].map(([l,v,c])=>`
+      <div style="background:var(--light);padding:.6rem;text-align:center;">
+        <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:.2rem;">${l}</div>
+        <div style="font-size:.88rem;font-weight:500;color:${c};">${v}</div>
+      </div>`).join('')}
+    </div>
+    ${bal>0?`<div style="background:#fff3e0;border:1px solid #ffcc80;padding:.6rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.72rem;color:#e65100;">⚠️ Balance: ₹${bal.toLocaleString()}</span>
+      <button class="btn btn-sm btn-red" onclick="markBalancePaid('${o.id}')">Mark Paid</button>
+    </div>`:''}
+    ${o.notes?`<div style="background:#fffdf8;border:1px solid #f0e8d0;padding:.7rem;font-size:.73rem;color:var(--mid);margin-bottom:.8rem;">📝 ${o.notes}</div>`:''}
+    <div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.5rem;">Update Status</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem;">
+      ${STATUSES.map(s=>`<button class="btn btn-sm ${s===o.status?'btn-gold':'btn-outline'}" onclick="updOrderStatus('${o.id}','${s}')">${s}</button>`).join('')}
+    </div>
+    <button class="btn btn-sm btn-red" onclick="showDeleteOrder('${o.id}')">Delete Order</button>
+  `;
+  openModal('view-order-modal');
+};
+
+window.renderCustomers = function() {
+  const q = (document.getElementById('cust-search')?.value||'').toLowerCase();
+  const custs = window.DB.customers.filter(c=>{
+    const m=c.name?.toLowerCase().includes(q)||(c.phone||'').includes(q);
+    return window.cFilter==='all'?m:m&&c.gender===window.cFilter;
+  });
+  const el=document.getElementById('custs-list');
+  if(!custs.length) { el.innerHTML='<div class="empty"><div class="empty-icon">👗</div><div>No customers yet</div></div>'; return; }
+  el.innerHTML=custs.map(c=>`
+    <div class="order-card" onclick="viewCustomer('${c.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-weight:500;font-size:.88rem;">${c.name||''}</div>
+          <div style="font-size:.7rem;color:var(--mid);">${c.phone?'📞 '+c.phone:''} ${c.email?'· ✉️ '+c.email:''}</div>
+          ${c.address?`<div style="font-size:.67rem;color:var(--mid);">📍 ${c.address}</div>`:''}
+        </div>
+        <span class="badge" style="background:${c.gender==='Female'?'#fce4ec':'#e3f2fd'};color:${c.gender==='Female'?'#c2185b':'#1565c0'};">${c.gender==='Female'?'👩':'👨'} ${c.gender||''}</span>
+      </div>
+      ${c.notes?`<div style="font-size:.68rem;color:var(--mid);margin-top:.3rem;">📝 ${c.notes}</div>`:''}
+      <div style="font-size:.62rem;color:var(--gold);margin-top:.3rem;">📏 ${Object.keys(c.measurements||{}).length} measurements · Tap to view</div>
+    </div>
+  `).join('');
+};
+
+window.viewCustomer = function(id) {
+  const c = window.DB.customers.find(x=>x.id===id);
+  if(!c) return;
+  window.viewingCust = c;
+  document.getElementById('vc-name').textContent = c.name+' ('+c.gender+')';
+  const meas=c.measurements||{};
+  document.getElementById('vc-body').innerHTML=`
+    <div style="background:var(--light);padding:.8rem;border-left:3px solid var(--gold);margin-bottom:.8rem;">
+      ${c.phone?`<div style="font-size:.75rem;margin-bottom:.3rem;">📞 ${c.phone}</div>`:''}
+      ${c.email?`<div style="font-size:.75rem;margin-bottom:.3rem;">✉️ ${c.email}</div>`:''}
+      ${c.address?`<div style="font-size:.75rem;margin-bottom:.3rem;">📍 ${c.address}</div>`:''}
+      ${c.notes?`<div style="font-size:.75rem;color:var(--gold);">📝 ${c.notes}</div>`:''}
+    </div>
+    ${Object.keys(meas).length?`
+      <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;font-weight:500;">📏 Measurements</div>
+      <div style="display:grid;grid-template-columns:1.2fr .7fr 1fr;gap:.3rem;padding:.3rem .4rem;background:var(--dark);margin-bottom:.3rem;">
+        ${['Measurement','Value','Notes'].map(h=>`<div style="font-size:.53rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">${h}</div>`).join('')}
+      </div>
+      ${Object.entries(meas).map(([f,d])=>`
+        <div style="display:grid;grid-template-columns:1.2fr .7fr 1fr;gap:.3rem;padding:.4rem .2rem;border-bottom:1px solid var(--blush);align-items:center;">
+          <div style="font-size:.7rem;color:var(--dark);">${f}</div>
+          <div style="font-size:.8rem;font-weight:500;">${d.v?d.v+'"':'-'}</div>
+          <div style="font-size:.63rem;color:var(--gold);font-style:italic;">${d.n||''}</div>
+        </div>
+      `).join('')}
+    `:`<div style="color:var(--mid);font-size:.78rem;text-align:center;padding:1.5rem;">No measurements saved yet.</div>`}
+  `;
+  openModal('view-cust-modal');
+};
+
+window.editCurrentCustomer = function() {
+  const c = window.viewingCust;
+  if(!c) return;
+  window.editingCustId = c.id;
+  closeModal('view-cust-modal');
+  openModal('add-cust-modal');
+  document.getElementById('cust-modal-title').textContent = 'Edit Customer';
+  document.getElementById('cust-save-btn').textContent = '💾 Save Changes';
+  document.getElementById('c-name').value = c.name||'';
+  document.getElementById('c-phone').value = c.phone||'';
+  document.getElementById('c-email').value = c.email||'';
+  document.getElementById('c-address').value = c.address||'';
+  document.getElementById('c-notes').value = c.notes||'';
+  window.currentGender = c.gender||'Female';
+  setCGender(window.currentGender);
+  buildMeasFields(window.currentGender, c.measurements||{});
+};
+
+// ═══ WORKERS / TIMESHEET ═══
+let weekStart = getWeekStart(new Date());
+
+function getWeekStart(d) {
+  const dt=new Date(d); const day=dt.getDay();
+  dt.setDate(dt.getDate()-day+(day===0?-6:1)); dt.setHours(0,0,0,0); return dt;
+}
+function getWeekDates(ws) {
+  return Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(d.getDate()+i); return d.toISOString().split('T')[0]; });
+}
+
+window.changeWeek = function(dir) {
+  weekStart.setDate(weekStart.getDate()+dir*7);
+  renderTimesheet();
+};
+
+function renderTimesheet() {
+  const days = getWeekDates(weekStart);
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const todayStr = tod();
+  const label = days[0].split('-').reverse().join('/')+' – '+days[6].split('-').reverse().join('/');
+  document.getElementById('week-label').textContent = label;
+  dayNames.forEach((n,i)=>{
+    const th=document.getElementById('th-'+n);
+    if(th){
+      const dd=days[i].split('-');
+      th.innerHTML=n+'<br><span style="font-size:.5rem;opacity:.8;">'+dd[2]+'/'+dd[1]+'</span>';
+      th.style.background = days[i]===todayStr?'var(--gold)':days[i]>todayStr?'#3a3030':'';
+      th.style.color = days[i]===todayStr?'var(--dark)':'';
+    }
+  });
+  const tbody=document.getElementById('ts-body');
+  if(!window.DB.workers.length){
+    tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:1.5rem;color:var(--mid);font-size:.73rem;">No workers yet. Add workers above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=window.DB.workers.map(w=>{
+    const weekTotal=days.reduce((s,d)=>{const e=window.DB.hours.find(h=>h.wid===w.id&&h.date===d);return s+(e?parseFloat(e.hours):0);},0);
+    const estPay=w.rate?(weekTotal*(parseFloat(w.rate)/8)).toFixed(0):null;
+    const weekKey='wpaid_'+w.id+'_'+days[0];
+    const paid=(window.DB.weekPaid||{})[weekKey]||0;
+    const balance=estPay?Math.max(0,parseInt(estPay)-paid):0;
+    const cells=days.map((date)=>{
+      const e=window.DB.hours.find(h=>h.wid===w.id&&h.date===date);
+      const isToday=date===todayStr;
+      return `<td style="padding:.15rem;"><input type="number" min="0" max="24" step=".5" value="${e?.hours||''}" placeholder="-"
+        class="ts-inp${isToday?' today':''}" onblur="updateHourCell('${w.id}','${date}',this.value)"/></td>`;
+    }).join('');
+    return `<tr style="border-bottom:1px solid var(--blush);">
+      <td style="padding:.35rem .4rem;">
+        <div style="font-size:.72rem;font-weight:500;">${w.name}</div>
+        <div style="font-size:.58rem;color:var(--mid);">${w.role}</div>
+      </td>
+      ${cells}
+      <td style="text-align:center;font-weight:600;font-size:.7rem;padding:.3rem;">${weekTotal>0?weekTotal+'h':'-'}</td>
+      <td style="text-align:center;color:var(--gold);font-size:.68rem;padding:.3rem;">${estPay&&weekTotal>0?'₹'+parseInt(estPay).toLocaleString():'-'}</td>
+      <td style="padding:.15rem;"><input type="number" min="0" step="1" value="${paid||''}" placeholder="0"
+        class="ts-inp paid" onblur="updatePaidCell('${w.id}','${weekKey}',this.value)"/></td>
+      <td style="text-align:center;font-size:.68rem;font-weight:500;color:${balance>0?'var(--red)':'var(--green)'};padding:.3rem;">
+        ${estPay&&weekTotal>0?(balance>0?'₹'+balance.toLocaleString():'✅'):'-'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.renderWorkers = function() {
+  renderTimesheet();
+  // Summary
+  const sumEl=document.getElementById('workers-summary');
+  if(!window.DB.workers.length){sumEl.innerHTML='<div class="empty"><div>No workers yet</div></div>';return;}
+  sumEl.innerHTML=window.DB.workers.map(w=>{
+    const tot=window.DB.hours.filter(h=>h.wid===w.id).reduce((s,h)=>s+parseFloat(h.hours||0),0);
+    const earn=w.rate?(tot*(parseFloat(w.rate)/8)).toFixed(0):0;
+    const advGiven=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
+    const advRepaid=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
+    const outstanding=advGiven-advRepaid;
+    const netPay=parseInt(earn)-outstanding;
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--blush);">
+      <div>
+        <div style="font-size:.78rem;font-weight:500;">${w.name}</div>
+        <div style="font-size:.62rem;color:var(--mid);">${w.role}${w.phone?' · 📞 '+w.phone:''}</div>
+        ${outstanding>0?`<div style="font-size:.62rem;color:var(--red);">Advance due: ₹${outstanding.toLocaleString()}</div>`:''}
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:.75rem;font-weight:500;">${tot}h · ${w.rate?'₹'+parseInt(earn).toLocaleString():'-'}</div>
+        ${outstanding>0?`<div style="font-size:.68rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
+        <button class="btn btn-sm btn-red" style="margin-top:.3rem;" onclick="delWorker('${w.id}')">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  // Advances
+  const advEl=document.getElementById('advances-list');
+  const allAdvs=window.DB.advances||[];
+  if(!allAdvs.length){advEl.innerHTML='<div class="empty"><div class="empty-icon">💰</div><div>No advances yet</div></div>';return;}
+  advEl.innerHTML=window.DB.workers.map(w=>{
+    const advs=allAdvs.filter(a=>a.wid===w.id);
+    if(!advs.length) return '';
+    const given=advs.filter(a=>a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
+    const repaid=advs.filter(a=>a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
+    const outstanding=given-repaid;
+    return `<div style="margin-bottom:.8rem;border:1px solid var(--blush);border-radius:2px;overflow:hidden;">
+      <div style="background:var(--dark);padding:.45rem .7rem;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.75rem;color:#fff;font-weight:500;">${w.name}</span>
+        <span style="font-size:.65rem;color:${outstanding>0?'#ff8a80':'#69f0ae'};">${outstanding>0?'Due: ₹'+outstanding.toLocaleString():'Cleared ✅'}</span>
+      </div>
+      <div style="padding:.5rem .7rem;">
+        <div style="display:flex;gap:1rem;font-size:.68rem;color:var(--mid);margin-bottom:.4rem;">
+          <span>Given: <strong style="color:var(--red);">₹${given.toLocaleString()}</strong></span>
+          <span>Repaid: <strong style="color:var(--green);">₹${repaid.toLocaleString()}</strong></span>
+        </div>
+        ${advs.slice().reverse().map(a=>`
+          <div class="adv-row">
+            <div><span style="color:${a.type==='advance'?'var(--red)':'var(--green)'};">${a.type==='advance'?'▼ Given':'▲ Repaid'}</span>${a.notes?' · '+a.notes:''}</div>
+            <div style="text-align:right;"><div style="font-weight:500;">₹${parseFloat(a.amount||0).toLocaleString()}</div><div style="font-size:.6rem;color:var(--mid);">${fmtD(a.date)}</div></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+};
+
+window.renderArchive = function() {
+  const el=document.getElementById('archive-list');
+  if(!window.DB.archive.length){el.innerHTML='<div class="empty"><div class="empty-icon">🗄</div><div>No archived orders.<br/>Deleted orders appear here.</div></div>';return;}
+  el.innerHTML=[...window.DB.archive].reverse().map(o=>`
+    <div class="order-card" style="border-left:3px solid var(--mid);opacity:.88;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;">
+        <div><div style="font-weight:500;font-size:.85rem;color:var(--mid);">${o.outfit||''}</div>
+        <div style="font-size:.7rem;color:var(--mid);">👤 ${o.customer||''}</div></div>
+        <span class="badge ${bClass(o.status)}">${o.status||''}</span>
+      </div>
+      <div style="font-size:.67rem;color:var(--mid);margin-bottom:.5rem;">
+        ${o.amount?`₹${parseInt(o.amount).toLocaleString()} · `:''}
+        <span style="color:var(--red);">Deleted: ${fmtD(o.deletedOn)}</span>
+        ${o.deleteReason?' · '+o.deleteReason:''}
+      </div>
+      <div style="display:flex;gap:.4rem;">
+        <button class="btn btn-sm btn-outline" onclick="restoreArchive('${o.id}')">↩ Restore</button>
+        <button class="btn btn-sm btn-red" onclick="permDeleteArchive('${o.id}')">Remove Forever</button>
+      </div>
+    </div>
+  `).join('');
+};
+
+window.updateDash = function() {
+  document.getElementById('s-pending').textContent=window.DB.orders.filter(o=>o.status==='Pending').length;
+  document.getElementById('s-custs').textContent=window.DB.customers.length;
+  document.getElementById('s-stitch').textContent=window.DB.orders.filter(o=>o.status==='Stitching').length;
+  document.getElementById('s-ready').textContent=window.DB.orders.filter(o=>o.status==='Ready').length;
+  const actEl=document.getElementById('activity-list');
+  actEl.innerHTML=window.DB.activity.length
+    ? window.DB.activity.slice(0,8).map(a=>`<div class="act-item"><div class="act-dot"></div><div><div class="act-text">${a.t}</div><div class="act-time">${a.ts}</div></div></div>`).join('')
+    : '<div class="empty"><div class="empty-icon">✨</div><div>Activity appears here</div></div>';
+};
+
+// ═══ CUSTOMER MEASUREMENTS ═══
+const FM = {
+  top:['Shoulder','Upper Chest','Middle Chest','Blouse Waist','Blouse Length','Front Cross','Back Cross','Dat Point','Dat UV','Top Waist','Hip'],
+  hand:['Arm Hole Round','Bicep Round','Short Hand Length','Short Hand Round','Elbow Hand Length','Elbow Hand Round','3/4th Hand Length','3/4th Hand Round','Full Hand Length','Full Hand Round','Front Neck Deep','Back Neck Deep','Collar'],
+  length:['Top Length','Frock Length','Anarkali Length','Full Gown Length','Short Frock Length','Kurti Length','Side Cut/Slit','Pant Waist','Lehenga Waist','Pant Length','Lehenga Length','Plazzo Pant Length'],
+  other:['Pant Length Round','Thigh','Knee','Cross']
+};
+const MM = {
+  top:['Shoulder','Chest','Waist','Front Cross','Back Cross','Collar','Arm Hole Round','Bicep'],
+  hand:['Full Hand Length','Full Hand Length Round','Half Hand Length','Half Hand Length Round'],
+  length:['Blazer Length','Kurta Length','Short Kurta Length','Sherwani Length','Shirt Length','Pant Waist','Pant Length','Dhoti Length','Trouser Length','Loose Pant Length','Cross']
+};
+
+function buildMeasSection(title, fields, cls, existingMeas={}) {
+  return `<div style="margin-bottom:.8rem;">
+    <div class="meas-head ${cls}">${title}</div>
+    ${fields.map(f=>`<div class="meas-row">
+      <div class="meas-name">${f}</div>
+      <input class="meas-inp" type="number" step=".5" data-field="${f}" data-key="v" value="${existingMeas[f]?.v||''}" placeholder="inches"/>
+      <input class="meas-note" type="text" data-field="${f}" data-key="n" value="${existingMeas[f]?.n||''}" placeholder="notes"/>
+    </div>`).join('')}
+  </div>`;
+}
+
+window.buildMeasFields = function(gender, existingMeas={}) {
+  const container=document.getElementById('c-meas-fields');
+  if(gender==='Female'){
+    container.innerHTML=
+      buildMeasSection('👗 Top Body',FM.top,'f',existingMeas)+
+      buildMeasSection('✂️ Hands & Neck',FM.hand,'f',existingMeas)+
+      buildMeasSection('📏 Lengths',FM.length,'f',existingMeas)+
+      buildMeasSection('🔵 Rounds & Other',FM.other,'f',existingMeas);
+  } else {
+    container.innerHTML=
+      buildMeasSection('👔 Top Body',MM.top,'m',existingMeas)+
+      buildMeasSection('✂️ Hands & Sleeves',MM.hand,'m',existingMeas)+
+      buildMeasSection('📏 Lengths',MM.length,'m',existingMeas);
+  }
+};
+
+window.collectMeasurements = function() {
+  const result={};
+  document.querySelectorAll('#c-meas-fields .meas-inp, #c-meas-fields .meas-note').forEach(inp=>{
+    const field=inp.dataset.field; const key=inp.dataset.key; const val=inp.value.trim();
+    if(val){ if(!result[field]) result[field]={}; result[field][key]=val; }
+  });
+  return result;
+};
+
+window.setCGender = function(g) {
+  window.currentGender=g;
+  document.getElementById('gc-f').classList.toggle('active',g==='Female');
+  document.getElementById('gc-m').classList.toggle('active',g==='Male');
+  buildMeasFields(g);
+};
+
+window.initCustForm = function() {
+  window.editingCustId=null;
+  document.getElementById('cust-modal-title').textContent='Add Customer';
+  document.getElementById('cust-save-btn').textContent='Save Customer';
+  ['c-name','c-phone','c-email','c-address','c-notes'].forEach(id=>document.getElementById(id).value='');
+  window.currentGender='Female';
+  document.getElementById('gc-f').classList.add('active');
+  document.getElementById('gc-m').classList.remove('active');
+  buildMeasFields('Female');
+};
+
+window.initOrderForm = function() {
+  // Populate customer dropdown
+  const sel=document.getElementById('o-cust');
+  sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
+  document.getElementById('o-date').value=tod();
+  ['o-phone','o-outfit','o-amount','o-advance','o-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('o-delivery').value='';
+  document.getElementById('o-status').value='Pending';
+};
+
+window.initAdvForm = function() {
+  const sel=document.getElementById('a-worker');
+  sel.innerHTML='<option value="">-- Select Worker --</option>'+window.DB.workers.map(w=>`<option value="${w.id}">${w.name}</option>`).join('');
+  document.getElementById('a-date').value=tod();
+  ['a-amount','a-notes'].forEach(id=>document.getElementById(id).value='');
+};
+
+window.autoFillPhone = function() {
+  const name=document.getElementById('o-cust').value;
+  const c=window.DB.customers.find(x=>x.name===name);
+  if(c) document.getElementById('o-phone').value=c.phone||'';
+};
+
+window.validateDelDate = function(inp) {
+  const isFuture=inp.value>tod();
+  document.getElementById('del-date-err').style.display=isFuture?'block':'none';
+  document.getElementById('del-confirm-btn').disabled=isFuture;
+};
+
+// ═══ MODAL & NAV ═══
+window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+window.showTab = function(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='dashboard') updateDash();
+  if(id==='orders') renderOrders();
+  if(id==='customers') renderCustomers();
+  if(id==='workers') renderWorkers();
+  if(id==='archive') renderArchive();
+};
+
+// ═══ INIT ═══
+document.getElementById('top-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+
+await loadAllData();
+document.getElementById('loading').style.display='none';
+document.getElementById('app').style.display='block';
+updateDash();
+renderOrders();
+
+</script>
+</body>
+</html>
