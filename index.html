@@ -384,6 +384,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
     <div class="modal-body" id="vc-body"></div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('view-cust-modal')">Close</button>
+      <button class="btn btn-outline" onclick="printMeasurements(viewingCust?.id)">🖨️ Print</button>
       <button class="btn" onclick="editCurrentCustomer()">✏️ Edit</button>
     </div>
   </div>
@@ -806,6 +807,7 @@ window.viewOrder = function(id) {
       ${STATUSES.map(s=>`<button class="btn btn-sm ${s===o.status?'btn-gold':'btn-outline'}" onclick="updOrderStatus('${o.id}','${s}')">${s}</button>`).join('')}
     </div>
     <button class="btn btn-sm btn-red" onclick="showDeleteOrder('${o.id}')">Delete Order</button>
+    <button class="btn btn-sm btn-outline" style="margin-left:.4rem;" onclick="printOrder('${o.id}')">🖨️ Print</button>
   `;
   openModal('view-order-modal');
 };
@@ -1146,6 +1148,149 @@ window.showTab = function(id, el) {
   if(id==='customers') renderCustomers();
   if(id==='workers') renderWorkers();
   if(id==='archive') renderArchive();
+};
+
+// ═══ PRINT FUNCTIONS ═══
+window.printOrder = function(id) {
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(!o) return;
+  const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
+  const content = `
+    <html><head><title>Order - ${o.outfit}</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Georgia',serif;padding:2rem;color:#2c2420;max-width:600px;margin:0 auto;}
+      .header{text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:1rem;margin-bottom:1.5rem;}
+      .brand{font-size:1.8rem;color:#2c2420;letter-spacing:.05em;}
+      .brand span{color:#c9a96e;font-style:italic;}
+      .sub{font-size:.75rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.3rem;}
+      .title{font-size:1.3rem;font-weight:bold;margin-bottom:1rem;color:#2c2420;}
+      .info-box{background:#fdf8f5;border-left:3px solid #c9a96e;padding:.8rem 1rem;margin-bottom:1rem;}
+      .info-row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #f5ddd7;font-size:.85rem;}
+      .info-row:last-child{border-bottom:none;}
+      .info-label{color:#7a5f5a;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;}
+      .info-val{font-weight:500;}
+      .amounts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;}
+      .amount-box{text-align:center;padding:.8rem;background:#fdf8f5;border:1px solid #f5ddd7;}
+      .amount-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;color:#7a5f5a;margin-bottom:.3rem;}
+      .amount-val{font-size:1.2rem;font-weight:bold;}
+      .notes-box{background:#fffdf8;border:1px solid #f0e8d0;padding:.8rem;font-size:.85rem;margin:1rem 0;}
+      .badge{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.7rem;font-weight:bold;text-transform:uppercase;letter-spacing:.1em;}
+      .footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #f5ddd7;text-align:center;font-size:.72rem;color:#7a5f5a;}
+      .sig-box{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;}
+      .sig-line{border-top:1px solid #2c2420;padding-top:.3rem;font-size:.7rem;color:#7a5f5a;text-align:center;}
+      @media print{body{padding:1rem;}}
+    </style></head>
+    <body>
+      <div class="header">
+        <div class="brand">kloset<span>by</span>kiandka</div>
+        <div class="sub">Boutique · Mangalgiri</div>
+        <div class="sub" style="margin-top:.2rem;">📞 88011 51111 · @klosetbykiandka</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="title">Order Receipt</div>
+        <span class="badge" style="background:${(STATUS_COLORS[o.status]||{}).bg||'#eee'};color:${(STATUS_COLORS[o.status]||{}).color||'#666'};">${o.status}</span>
+      </div>
+      <div class="info-box">
+        <div class="info-row"><span class="info-label">Customer</span><span class="info-val">${o.customer||''}</span></div>
+        ${o.phone?`<div class="info-row"><span class="info-label">Phone</span><span class="info-val">${o.phone}</span></div>`:''}
+        <div class="info-row"><span class="info-label">Outfit</span><span class="info-val">${o.outfit||''}</span></div>
+        ${o.date?`<div class="info-row"><span class="info-label">Order Date</span><span class="info-val">${fmtD(o.date)}</span></div>`:''}
+        ${o.delivery?`<div class="info-row"><span class="info-label">Delivery Date</span><span class="info-val">${fmtD(o.delivery)}</span></div>`:''}
+        ${o.deliveredOn?`<div class="info-row"><span class="info-label">Delivered On</span><span class="info-val">${fmtD(o.deliveredOn)}</span></div>`:''}
+      </div>
+      <div class="amounts">
+        <div class="amount-box">
+          <div class="amount-label">Total</div>
+          <div class="amount-val" style="color:#2c2420;">${o.amount?'₹'+parseInt(o.amount).toLocaleString():'-'}</div>
+        </div>
+        <div class="amount-box">
+          <div class="amount-label">Advance Paid</div>
+          <div class="amount-val" style="color:#4caf7d;">${o.advance?'₹'+parseInt(o.advance).toLocaleString():'-'}</div>
+        </div>
+        <div class="amount-box">
+          <div class="amount-label">Balance Due</div>
+          <div class="amount-val" style="color:${bal>0?'#e07b6a':'#4caf7d'};">${bal>0?'₹'+bal.toLocaleString():'Paid ✅'}</div>
+        </div>
+      </div>
+      ${o.notes?`<div class="notes-box"><strong>Notes:</strong> ${o.notes}</div>`:''}
+      <div class="sig-box">
+        <div class="sig-line">Customer Signature</div>
+        <div class="sig-line">Store Signature</div>
+      </div>
+      <div class="footer">
+        Thank you for choosing klosetbykiandka! · Printed on ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+      </div>
+    </body></html>
+  `;
+  const win = window.open('','_blank');
+  win.document.write(content);
+  win.document.close();
+  win.onload = () => { win.print(); };
+};
+
+window.printMeasurements = function(id) {
+  const c = window.DB.customers.find(x=>x.id===id);
+  if(!c) return;
+  const meas = c.measurements||{};
+  const measRows = Object.entries(meas).map(([f,d])=>`
+    <tr>
+      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.82rem;">${f}</td>
+      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.82rem;font-weight:600;text-align:center;">${d.v?d.v+'"':'-'}</td>
+      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.75rem;color:#c9a96e;font-style:italic;">${d.n||''}</td>
+    </tr>
+  `).join('');
+  const content = `
+    <html><head><title>Measurements - ${c.name}</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Georgia',serif;padding:2rem;color:#2c2420;max-width:600px;margin:0 auto;}
+      .header{text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:1rem;margin-bottom:1.5rem;}
+      .brand{font-size:1.8rem;color:#2c2420;letter-spacing:.05em;}
+      .brand span{color:#c9a96e;font-style:italic;}
+      .sub{font-size:.75rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.3rem;}
+      .cust-info{background:#fdf8f5;border-left:3px solid #c9a96e;padding:.8rem 1rem;margin-bottom:1.2rem;}
+      .cust-name{font-size:1.2rem;font-weight:bold;margin-bottom:.3rem;}
+      .cust-detail{font-size:.78rem;color:#7a5f5a;}
+      .section-title{background:#2c2420;color:#fff;padding:.4rem .8rem;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:0;}
+      table{width:100%;border-collapse:collapse;margin-bottom:1rem;}
+      thead tr{background:#f5ddd7;}
+      thead td{padding:.4rem .6rem;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#7a5f5a;font-weight:600;}
+      .footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid #f5ddd7;text-align:center;font-size:.72rem;color:#7a5f5a;}
+      @media print{body{padding:1rem;}}
+    </style></head>
+    <body>
+      <div class="header">
+        <div class="brand">kloset<span>by</span>kiandka</div>
+        <div class="sub">Boutique · Mangalgiri</div>
+        <div class="sub" style="margin-top:.2rem;">📞 88011 51111 · @klosetbykiandka</div>
+      </div>
+      <div class="cust-info">
+        <div class="cust-name">👤 ${c.name} <span style="font-size:.75rem;color:#7a5f5a;font-weight:normal;">(${c.gender})</span></div>
+        ${c.phone?`<div class="cust-detail">📞 ${c.phone}</div>`:''}
+        ${c.address?`<div class="cust-detail">📍 ${c.address}</div>`:''}
+        ${c.notes?`<div class="cust-detail" style="margin-top:.3rem;color:#c9a96e;">📝 ${c.notes}</div>`:''}
+      </div>
+      ${Object.keys(meas).length?`
+        <div class="section-title">📏 Measurements</div>
+        <table>
+          <thead><tr>
+            <td>Measurement</td>
+            <td style="text-align:center;">Value</td>
+            <td>Notes</td>
+          </tr></thead>
+          <tbody>${measRows}</tbody>
+        </table>
+      `:'<p style="text-align:center;color:#7a5f5a;padding:2rem;">No measurements saved yet.</p>'}
+      <div class="footer">
+        klosetbykiandka · Printed on ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+      </div>
+    </body></html>
+  `;
+  const win = window.open('','_blank');
+  win.document.write(content);
+  win.document.close();
+  win.onload = () => { win.print(); };
 };
 
 // ═══ INIT ═══
