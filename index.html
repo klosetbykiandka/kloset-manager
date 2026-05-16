@@ -40,15 +40,17 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 .ta{min-height:60px;resize:vertical;}
 .inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+@media(max-width:480px){.row2{grid-template-columns:1fr;}}
 /* BADGES */
 .badge{display:inline-block;padding:.15rem .5rem;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;font-weight:500;}
 .b-pending{background:#fff3e0;color:#e65100;} .b-confirmed{background:#e8f5e9;color:#2e7d32;}
 .b-stitching{background:#e3f2fd;color:#1565c0;} .b-alteration{background:#fce4ec;color:#ad1457;}
 .b-ready{background:#f3e5f5;color:#6a1b9a;} .b-delivered{background:#e0f2f1;color:#00695c;}
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(44,36,32,.65);z-index:200;overflow-y:auto;padding:1rem 0;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(44,36,32,.65);z-index:200;overflow-y:auto;padding:1rem;}
 .modal-bg.open{display:flex;align-items:flex-start;justify-content:center;}
-.modal{background:var(--white);width:calc(100% - 2rem);max-width:500px;margin:auto;border-radius:2px;}
+.modal{background:var(--white);width:100%;max-width:480px;margin:auto;border-radius:2px;}
+@media(min-width:600px){.modal{max-width:520px;}}
 .modal-head{padding:.9rem 1.1rem;border-bottom:1px solid var(--blush);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;}
 .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--mid);}
@@ -670,7 +672,11 @@ window.clearArchive = async function() {
 };
 
 window.delWorker = async function(id) {
-  if(!confirm('Remove this worker?')) return;
+  const w = window.DB.workers.find(x=>x.id===id);
+  if(!w) return;
+  // Show inline confirm in summary
+  const confirmed = window.confirm('Remove '+w.name+'?\nThis will also delete all their hours and advances.');
+  if(!confirmed) return;
   await deleteDoc(doc(db,'workers',id));
   window.DB.workers = window.DB.workers.filter(x=>x.id!==id);
   // Remove hours and advances
@@ -752,6 +758,7 @@ window.renderOrders = function() {
         ${o.advance?`<span style="color:var(--green)">✅ ₹${parseInt(o.advance).toLocaleString()} paid</span>`:''}
         ${bal>0&&o.amount?`<span style="color:var(--red)">⚠️ ₹${bal.toLocaleString()} due</span>`:''}
         ${o.delivery&&o.status!=='Delivered'?`<span style="color:var(--blue)">Due: ${fmtD(o.delivery)}</span>`:''}
+        ${o.delivery&&o.status!=='Delivered'&&o.delivery<new Date().toISOString().split('T')[0]?`<span style="color:var(--red);font-weight:500;">⚠️ Overdue!</span>`:''}
         ${o.deliveredOn&&o.status==='Delivered'?`<span style="color:var(--green)">✅ ${fmtD(o.deliveredOn)}</span>`:''}
       </div>
       <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">Tap to view →</div>
@@ -1090,10 +1097,10 @@ window.initCustForm = function() {
 };
 
 window.initOrderForm = function() {
-  // Populate customer dropdown
   const sel=document.getElementById('o-cust');
   sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
-  document.getElementById('o-date').value=tod();
+  const todayVal = new Date().toISOString().split('T')[0];
+  document.getElementById('o-date').value=todayVal;
   ['o-phone','o-outfit','o-amount','o-advance','o-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('o-delivery').value='';
   document.getElementById('o-status').value='Pending';
