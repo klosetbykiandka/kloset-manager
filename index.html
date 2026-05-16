@@ -40,6 +40,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 .ta{min-height:60px;resize:vertical;}
 .inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.modal .row2{grid-template-columns:1fr;}
 @media(max-width:480px){.row2{grid-template-columns:1fr;}}
 /* BADGES */
 .badge{display:inline-block;padding:.15rem .5rem;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;font-weight:500;}
@@ -453,7 +454,13 @@ window.DB = { orders:[], customers:[], workers:[], hours:[], advances:[], archiv
 window.db = db;
 
 // ═══ HELPERS ═══
-const tod = () => new Date().toISOString().split('T')[0];
+const tod = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+};
 const fmtD = d => { try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d||'';} };
 const addAct = (t) => { const now=new Date(); return {t, ts:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-IN'), createdAt:now.toISOString()}; };
 const showSave = () => { const s=document.getElementById('save-status'); if(s){s.textContent='✅ Saved';setTimeout(()=>s.textContent='',2000);} };
