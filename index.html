@@ -390,10 +390,10 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
         <button class="gender-btn f active" id="gc-f" onclick="setCGender('Female')">👩 Female</button>
         <button class="gender-btn m" id="gc-m" onclick="setCGender('Male')">👨 Male</button>
       </div>
-      <div style="display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:.3rem;padding:.3rem .4rem;background:var(--dark);margin-bottom:.3rem;">
-        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Measurement</div>
+      <div style="display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:.3rem;padding:.3rem .4rem;background:var(--dark);margin-bottom:.3rem;" id="meas-header-row">
+        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;" id="mh-meas">Measurement</div>
         <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Inches</div>
-        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;">Notes</div>
+        <div style="font-size:.55rem;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;" id="mh-notes">Notes</div>
       </div>
       <div id="c-meas-fields"></div>
     </div>
@@ -1140,29 +1140,31 @@ const MM = {
 };
 
 function buildMeasSection(title, fields, cls, existingMeas={}) {
+  const t = T();
   return `<div style="margin-bottom:.8rem;">
     <div class="meas-head ${cls}">${title}</div>
     ${fields.map(f=>`<div class="meas-row">
       <div class="meas-name">${f}</div>
-      <input class="meas-inp" type="number" step=".5" data-field="${f}" data-key="v" value="${existingMeas[f]?.v||''}" placeholder="inches"/>
-      <input class="meas-note" type="text" data-field="${f}" data-key="n" value="${existingMeas[f]?.n||''}" placeholder="notes"/>
+      <input class="meas-inp" type="number" step=".5" data-field="${f}" data-key="v" value="${existingMeas[f]?.v||''}" placeholder="${t.phInches||'inches'}"/>
+      <input class="meas-note" type="text" data-field="${f}" data-key="n" value="${existingMeas[f]?.n||''}" placeholder="${t.phNotes||'notes'}"/>
     </div>`).join('')}
   </div>`;
 }
 
 window.buildMeasFields = function(gender, existingMeas={}) {
+  const t = T();
   const container=document.getElementById('c-meas-fields');
   if(gender==='Female'){
     container.innerHTML=
-      buildMeasSection('👗 Top Body',FM.top,'f',existingMeas)+
-      buildMeasSection('✂️ Hands & Neck',FM.hand,'f',existingMeas)+
-      buildMeasSection('📏 Lengths',FM.length,'f',existingMeas)+
-      buildMeasSection('🔵 Rounds & Other',FM.other,'f',existingMeas);
+      buildMeasSection(t.mTopBody||'👗 Top Body',FM.top,'f',existingMeas)+
+      buildMeasSection(t.mHandsNeck||'✂️ Hands & Neck',FM.hand,'f',existingMeas)+
+      buildMeasSection(t.mLengths||'📏 Lengths',FM.length,'f',existingMeas)+
+      buildMeasSection(t.mRounds||'🔵 Rounds & Other',FM.other,'f',existingMeas);
   } else {
     container.innerHTML=
-      buildMeasSection('👔 Top Body',MM.top,'m',existingMeas)+
-      buildMeasSection('✂️ Hands & Sleeves',MM.hand,'m',existingMeas)+
-      buildMeasSection('📏 Lengths',MM.length,'m',existingMeas);
+      buildMeasSection(t.mTopBodyM||'👔 Top Body',MM.top,'m',existingMeas)+
+      buildMeasSection(t.mHandsSleeves||'✂️ Hands & Sleeves',MM.hand,'m',existingMeas)+
+      buildMeasSection(t.mLengths||'📏 Lengths',MM.length,'m',existingMeas);
   }
 };
 
@@ -1417,6 +1419,16 @@ const LANGS = {
     thankYou:'Thank you for choosing klosetbykiandka! 🌸',
     noMeas:'No measurements saved yet.',
     custSig:'Customer Signature', storeSig:'Store Signature',
+    // Measurement sections
+    mTopBody:'👗 Top Body', mHandsNeck:'✂️ Hands & Neck', mLengths:'📏 Lengths',
+    mRounds:'🔵 Rounds & Other', mHandsSleeves:'✂️ Hands & Sleeves',
+    mTopBodyM:'👔 Top Body',
+    // Placeholders
+    phInches:'inches', phNotes:'notes',
+    phFabric:'Fabric, embroidery details...', phAddress:'House no, Street, Area, City, Pincode...',
+    phPrefs:'e.g. prefers cotton, loose fit...', phReason:'Enter reason...',
+    phCustName:'Customer name', phOutfit:'e.g. Bridal Lehenga',
+    phWorkerName:'e.g. Lakshmi', phAmount:'13000', phAdvAmount:'500',
   },
   hi: {
     dashboard:'डैशबोर्ड', orders:'ऑर्डर', customers:'ग्राहक', workers:'कारीगर', archive:'आर्काइव',
@@ -1445,6 +1457,14 @@ const LANGS = {
     thankYou:'klosetbykiandka चुनने के लिए धन्यवाद! 🌸',
     noMeas:'अभी कोई माप नहीं।',
     custSig:'ग्राहक हस्ताक्षर', storeSig:'दुकान हस्ताक्षर',
+    mTopBody:'👗 ऊपरी शरीर', mHandsNeck:'✂️ हाथ और गर्दन', mLengths:'📏 लंबाई',
+    mRounds:'🔵 गोलाई और अन्य', mHandsSleeves:'✂️ हाथ और आस्तीन',
+    mTopBodyM:'👔 ऊपरी शरीर',
+    phInches:'इंच', phNotes:'नोट्स',
+    phFabric:'कपड़ा, कढ़ाई विवरण...', phAddress:'मकान नं, गली, क्षेत्र, शहर, पिनकोड...',
+    phPrefs:'जैसे: सूती पसंद, ढीला फिट...', phReason:'कारण दर्ज करें...',
+    phCustName:'ग्राहक का नाम', phOutfit:'जैसे: ब्राइडल लहंगा',
+    phWorkerName:'जैसे: लक्ष्मी', phAmount:'13000', phAdvAmount:'500',
   },
   te: {
     dashboard:'డాష్‌బోర్డ్', orders:'ఆర్డర్లు', customers:'కస్టమర్లు', workers:'కార్మికులు', archive:'ఆర్కైవ్',
@@ -1473,6 +1493,14 @@ const LANGS = {
     thankYou:'klosetbykiandka ఎంచుకున్నందుకు ధన్యవాదాలు! 🌸',
     noMeas:'కొలతలు సేవ్ చేయబడలేదు.',
     custSig:'కస్టమర్ సంతకం', storeSig:'స్టోర్ సంతకం',
+    mTopBody:'👗 పై శరీరం', mHandsNeck:'✂️ చేతులు & మెడ', mLengths:'📏 పొడవులు',
+    mRounds:'🔵 చుట్టుకొలతలు & ఇతరాలు', mHandsSleeves:'✂️ చేతులు & చేతి అంచులు',
+    mTopBodyM:'👔 పై శరీరం',
+    phInches:'అంగుళాలు', phNotes:'గమనికలు',
+    phFabric:'బట్ట, అలంకరణ వివరాలు...', phAddress:'ఇంటి నం, వీధి, ప్రాంతం, నగరం, పిన్‌కోడ్...',
+    phPrefs:'ఉదా: పత్తి ఇష్టం, వదులుగా...', phReason:'కారణం నమోదు చేయండి...',
+    phCustName:'కస్టమర్ పేరు', phOutfit:'ఉదా: బ్రైడల్ లెహంగా',
+    phWorkerName:'ఉదా: లక్ష్మి', phAmount:'13000', phAdvAmount:'500',
   }
 };
 
@@ -1579,8 +1607,8 @@ window.setLang = function(lang) {
   if(custCancelBtn) custCancelBtn.textContent=t.cancel;
   // Meas table header
   const mhCols=document.querySelectorAll('#add-cust-modal .modal-body > div[style*="1.2fr"] > div');
-  if(mhCols[0]) mhCols[0].textContent=t.measurements;
-  if(mhCols[2]) mhCols[2].textContent=t.notes;
+  if(mhCols[0]) mhCols[0].textContent=t.measurements||'Measurement';
+  if(mhCols[2]) mhCols[2].textContent=t.notes||'Notes';
 
   // View Customer modal
   const vcBtns=document.querySelectorAll('#view-cust-modal .modal-foot button');
@@ -1622,6 +1650,59 @@ window.setLang = function(lang) {
   // Archive page
   const clearBtn=document.querySelector('#tab-archive .btn-outline');
   if(clearBtn) clearBtn.textContent=t.clearAll;
+
+  // Placeholders
+  const oNotes = document.getElementById('o-notes');
+  if(oNotes) oNotes.placeholder = t.phFabric||'Fabric, embroidery details...';
+  const oOutfit = document.getElementById('o-outfit');
+  if(oOutfit) oOutfit.placeholder = t.phOutfit||'e.g. Bridal Lehenga';
+  const cName = document.getElementById('c-name');
+  if(cName) cName.placeholder = t.phCustName||'Customer name';
+  const cAddr = document.getElementById('c-address');
+  if(cAddr) cAddr.placeholder = t.phAddress||'House no, Street, Area, City...';
+  const cNotes = document.getElementById('c-notes');
+  if(cNotes) cNotes.placeholder = t.phPrefs||'e.g. prefers cotton, loose fit...';
+  const wName = document.getElementById('w-name');
+  if(wName) wName.placeholder = t.phWorkerName||'e.g. Lakshmi';
+  const delOther = document.getElementById('del-other');
+  if(delOther) delOther.placeholder = t.phReason||'Enter reason...';
+
+  setEl('mh-meas', t.measurements||'Measurement');
+  setEl('mh-notes', t.phNotes||'Notes');
+
+  // Delete reason dropdown options
+  const delOpts = document.querySelectorAll('#del-reason option');
+  const delReasons = {
+    en:['-- Select Reason --','Order Cancelled by Customer','Duplicate Entry','Wrong Entry','Customer Not Responding','Other'],
+    hi:['-- कारण चुनें --','ग्राहक ने रद्द किया','डुप्लीकेट एंट्री','गलत एंट्री','ग्राहक का जवाब नहीं','अन्य'],
+    te:['-- కారణం ఎంచుకోండి --','కస్టమర్ రద్దు చేశారు','నకిలీ నమోదు','తప్పు నమోదు','కస్టమర్ స్పందించలేదు','ఇతర']
+  };
+  const reasons = delReasons[lang]||delReasons.en;
+  delOpts.forEach((opt,i)=>{ if(reasons[i]) opt.textContent=reasons[i]; });
+
+  // Status dropdown in add order form
+  const oStatus = document.getElementById('o-status');
+  if(oStatus){
+    const statusKeys=['pending','confirmed','stitching','alteration','ready','delivered'];
+    Array.from(oStatus.options).forEach((opt,i)=>{ if(t[statusKeys[i]]) opt.textContent=t[statusKeys[i]]; });
+  }
+
+  // Worker role dropdown
+  const wRole = document.getElementById('w-role');
+  const roles = {
+    en:['Master Tailor','Stitcher','Embroidery','Helper','Sales'],
+    hi:['मास्टर दर्जी','सिलाई करने वाला','कढ़ाई','सहायक','बिक्री'],
+    te:['మాస్టర్ టైలర్','కుట్టు పని వాళ్ళు','ఎంబ్రాయిడరీ','సహాయకుడు','అమ్మకాలు']
+  };
+  if(wRole){
+    const roleList = roles[lang]||roles.en;
+    Array.from(wRole.options).forEach((opt,i)=>{ if(roleList[i]) opt.textContent=roleList[i]; });
+  }
+
+  // Re-build meas fields if modal is open
+  if(document.getElementById('add-cust-modal').classList.contains('open')){
+    buildMeasFields(window.currentGender||'Female');
+  }
 
   // Re-render active page
   const activePage=document.querySelector('.page.active');
