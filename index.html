@@ -1479,38 +1479,160 @@ const LANGS = {
 let currentLang = 'en';
 const T = () => LANGS[currentLang];
 
+// Helper to set element text
+function setEl(id, text) { const el=document.getElementById(id); if(el) el.textContent=text; }
+// Helper to set label for an input field
+function setLabel(inputId, text) {
+  const inp=document.getElementById(inputId);
+  if(inp){ const label=inp.closest('.field')?.querySelector('.label'); if(label) label.textContent=text; }
+}
+
 window.setLang = function(lang) {
   currentLang = lang;
-  // Update lang buttons
+  localStorage.setItem('kk_lang', lang);
+  const t = LANGS[lang];
+
+  // Lang buttons
   ['en','hi','te'].forEach(l => {
-    const btn = document.getElementById('lang-'+l);
-    if(btn){
-      btn.style.background = l===lang?'rgba(201,169,110,.8)':'none';
-      btn.style.color = l===lang?'#fff':'rgba(255,255,255,.6)';
-    }
+    const btn=document.getElementById('lang-'+l);
+    if(btn){ btn.style.background=l===lang?'rgba(193,123,140,.8)':'none'; btn.style.color=l===lang?'#fff':'rgba(255,255,255,.6)'; }
   });
-  // Update tabs
-  const tabLabels = ['dashboard','orders','customers','workers','archive'];
-  const tabKeys = ['dashboard','orders','customers','workers','archive'];
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    const icons = ['📊','📋','👗','⏰','🗄'];
-    t.textContent = icons[i]+' '+T()[tabKeys[i]];
-  });
-  // Update save week button
-  const swb = document.getElementById('save-ts-btn');
-  if(swb) swb.textContent = T().saveWeek;
-  // Re-render current page
-  const activePage = document.querySelector('.page.active');
+
+  // Tabs
+  const tabIcons=['📊','📋','👗','⏰','🗄'];
+  const tabKeys=['dashboard','orders','customers','workers','archive'];
+  document.querySelectorAll('.tab').forEach((tab,i)=>{ tab.textContent=tabIcons[i]+' '+t[tabKeys[i]]; });
+
+  // Orders page
+  const newOrderBtn=document.querySelector('#tab-orders .sec-header .btn');
+  if(newOrderBtn) newOrderBtn.textContent=t.newOrder;
+  const orderSearch=document.getElementById('order-search');
+  if(orderSearch) orderSearch.placeholder=t.search;
+  const pills=document.querySelectorAll('#order-pills .pill');
+  const pillLabels=[t.all,t.pending,t.stitching,t.alteration,t.ready,t.delivered];
+  pills.forEach((p,i)=>{ if(pillLabels[i]) p.textContent=pillLabels[i]; });
+
+  // Add Order modal
+  setLabel('o-cust', t.customer+' *');
+  setLabel('o-phone', t.phone);
+  setLabel('o-date', t.orderDate);
+  setLabel('o-outfit', t.outfit+' *');
+  setLabel('o-amount', t.amount);
+  setLabel('o-advance', t.advance);
+  setLabel('o-delivery', t.deliveryDate);
+  setLabel('o-status', t.status);
+  setLabel('o-notes', t.notes);
+  const oSaveBtn=document.getElementById('o-save-btn');
+  if(oSaveBtn && !window.editingOrderId) oSaveBtn.textContent=t.saveOrder;
+  const oModalCancel=document.querySelector('#add-order-modal .btn-outline');
+  if(oModalCancel) oModalCancel.textContent=t.cancel;
+
+  // View order modal
+  setEl('vo-close-btn', t.close);
+  setEl('vo-edit-btn', '✏️ '+t.edit);
+
+  // Delivery modal
+  const delModalTitle=document.querySelector('#delivery-modal .modal-title');
+  if(delModalTitle) delModalTitle.textContent=t.deliveryDate;
+  setEl('del-confirm-btn', '✅ '+t.delivered);
+  const delCancelBtn=document.querySelector('#delivery-modal .btn-outline');
+  if(delCancelBtn) delCancelBtn.textContent=t.cancel;
+  const delDateErr=document.getElementById('del-date-err');
+  if(delDateErr) delDateErr.textContent='⚠️ '+t.deliveryDate+' cannot be future date';
+
+  // Delete order modal
+  const delTitle=document.querySelector('#delete-order-modal .modal-title');
+  if(delTitle) delTitle.textContent=t.deleteOrder;
+  setLabel('del-reason', t.reason);
+  const delNote=document.querySelector('#delete-order-modal p:last-child');
+  if(delNote) delNote.textContent=t.archiveMsg;
+  const delCBtn=document.querySelector('#delete-order-modal .btn-outline');
+  if(delCBtn) delCBtn.textContent=t.cancel;
+  const delDBtn=document.querySelector('#delete-order-modal .btn-red');
+  if(delDBtn) delDBtn.textContent=t.deleteOrder;
+
+  // Customers page
+  const newCustBtn=document.querySelector('#tab-customers .sec-header .btn');
+  if(newCustBtn) newCustBtn.textContent=t.newCustomer;
+  const custSearch=document.getElementById('cust-search');
+  if(custSearch) custSearch.placeholder=t.searchCust;
+  const custPills=document.querySelectorAll('#tab-customers .pills .pill');
+  if(custPills[0]) custPills[0].textContent=t.all;
+  if(custPills[1]) custPills[1].textContent='👩 '+t.female;
+  if(custPills[2]) custPills[2].textContent='👨 '+t.male;
+
+  // Add Customer modal
+  const custModalTitle=document.getElementById('cust-modal-title');
+  if(custModalTitle && !window.editingCustId) custModalTitle.textContent=t.customers.replace('s','')+'r '+t.newCustomer.replace('+ ','');
+  setLabel('c-name', t.name+' *');
+  setLabel('c-phone', t.phone);
+  setLabel('c-email', t.email);
+  setLabel('c-address', t.address);
+  setLabel('c-notes', t.notes);
+  const gLabel=document.querySelector('#add-cust-modal .label');
+  if(gLabel) gLabel.textContent=t.gender+' *';
+  const gcF=document.getElementById('gc-f'); if(gcF) gcF.textContent='👩 '+t.female;
+  const gcM=document.getElementById('gc-m'); if(gcM) gcM.textContent='👨 '+t.male;
+  const custSaveBtn=document.getElementById('cust-save-btn');
+  if(custSaveBtn && !window.editingCustId) custSaveBtn.textContent=t.saveCustomer;
+  const custCancelBtn=document.querySelector('#add-cust-modal .btn-outline');
+  if(custCancelBtn) custCancelBtn.textContent=t.cancel;
+  // Meas table header
+  const mhCols=document.querySelectorAll('#add-cust-modal .modal-body > div[style*="1.2fr"] > div');
+  if(mhCols[0]) mhCols[0].textContent=t.measurements;
+  if(mhCols[2]) mhCols[2].textContent=t.notes;
+
+  // View Customer modal
+  const vcBtns=document.querySelectorAll('#view-cust-modal .modal-foot button');
+  if(vcBtns[0]) vcBtns[0].textContent=t.close;
+  if(vcBtns[1]) vcBtns[1].textContent=t.print;
+  if(vcBtns[2]) vcBtns[2].textContent='✏️ '+t.edit;
+
+  // Workers page
+  const newWBtn=document.querySelector('#tab-workers .sec-header .btn');
+  if(newWBtn) newWBtn.textContent=t.newWorker;
+  setEl('save-ts-btn', t.saveWeek);
+  const tabOutEl=document.querySelector('#tab-workers .card > div:last-child > span');
+  if(tabOutEl) tabOutEl.textContent=t.tabOut;
+
+  // Add Worker modal
+  setLabel('w-name', t.workerName+' *');
+  setLabel('w-phone', t.phone);
+  setLabel('w-role', t.role);
+  setLabel('w-rate', t.dailyRate);
+  const wSaveBtn=document.querySelector('#add-worker-modal .btn:not(.btn-outline)');
+  if(wSaveBtn) wSaveBtn.textContent=t.saveWorker;
+  const wCancelBtn=document.querySelector('#add-worker-modal .btn-outline');
+  if(wCancelBtn) wCancelBtn.textContent=t.cancel;
+
+  // Add Advance modal
+  setLabel('a-worker', t.workers+' *');
+  setLabel('a-amount', t.amount+' *');
+  setLabel('a-date', t.orderDate+' *');
+  setLabel('a-notes', t.notes);
+  const advOpts=document.querySelectorAll('#a-type option');
+  if(advOpts[0]) advOpts[0].textContent=t.advanceGiven;
+  if(advOpts[1]) advOpts[1].textContent=t.advanceRepaid;
+  if(advOpts[2]) advOpts[2].textContent=t.deductedSalary;
+  const aSaveBtn=document.querySelector('#add-adv-modal .btn:not(.btn-outline)');
+  if(aSaveBtn) aSaveBtn.textContent=t.saveWorker;
+  const aCancelBtn=document.querySelector('#add-adv-modal .btn-outline');
+  if(aCancelBtn) aCancelBtn.textContent=t.cancel;
+
+  // Archive page
+  const clearBtn=document.querySelector('#tab-archive .btn-outline');
+  if(clearBtn) clearBtn.textContent=t.clearAll;
+
+  // Re-render active page
+  const activePage=document.querySelector('.page.active');
   if(activePage){
-    const id = activePage.id.replace('tab-','');
+    const id=activePage.id.replace('tab-','');
     if(id==='dashboard') updateDash();
     if(id==='orders') renderOrders();
     if(id==='customers') renderCustomers();
     if(id==='workers') renderWorkers();
     if(id==='archive') renderArchive();
   }
-  // Save preference
-  localStorage.setItem('kk_lang', lang);
 };
 
 // ═══ INIT ═══
