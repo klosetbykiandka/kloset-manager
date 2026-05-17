@@ -219,13 +219,13 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 <!-- WORKERS -->
 <div class="page" id="tab-workers">
   <div class="sec-header">
-    <div class="sec-title">Workers</div>
+    <div class="sec-title" id="workers-page-title">Workers</div>
     <button class="btn" onclick="openModal('add-worker-modal')">+ Add Worker</button>
   </div>
   <!-- TIMESHEET -->
   <div class="card">
     <div class="sec-header" style="margin-bottom:.6rem;">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Weekly Timesheet</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;" id="weekly-ts-title">Weekly Timesheet</div>
       <div style="display:flex;gap:.3rem;align-items:center;">
         <button class="btn btn-sm btn-outline" onclick="changeWeek(-1)">◀</button>
         <span id="week-label" style="font-size:.62rem;color:var(--mid);white-space:nowrap;"></span>
@@ -260,13 +260,13 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
   </div>
   <!-- SUMMARY -->
   <div class="card">
-    <div class="sec-title" style="margin-bottom:.7rem;font-size:1.1rem;">Workers Summary</div>
+    <div class="sec-title" id="workers-summary-title" style="margin-bottom:.7rem;font-size:1.1rem;">Workers Summary</div>
     <div id="workers-summary"></div>
   </div>
   <!-- ADVANCES -->
   <div class="card">
     <div class="sec-header">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Advances</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;" id="advances-title">Advances</div>
       <button class="btn btn-sm" onclick="openModal('add-adv-modal');initAdvForm()">+ Add</button>
     </div>
     <div id="advances-list"></div>
@@ -1046,7 +1046,7 @@ window.renderWorkers = function() {
       <div style="text-align:right;">
         <div style="font-size:.75rem;font-weight:500;">${tot}h · ${w.rate?'₹'+parseInt(earn).toLocaleString():'-'}</div>
         ${outstanding>0?`<div style="font-size:.68rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
-        <button class="btn btn-sm btn-red" style="margin-top:.3rem;" onclick="delWorker('${w.id}')">Remove</button>
+        <button class="btn btn-sm btn-red" style="margin-top:.3rem;" onclick="delWorker('${w.id}')">${T().remove||'Remove'}</button>
       </div>
     </div>`;
   }).join('');
@@ -1260,8 +1260,8 @@ window.setCGender = function(g) {
 
 window.initCustForm = function() {
   window.editingCustId=null;
-  document.getElementById('cust-modal-title').textContent='Add Customer';
-  document.getElementById('cust-save-btn').textContent='Save Customer';
+  document.getElementById('cust-modal-title').textContent=T().newCustomer.replace('+ ','');
+  document.getElementById('cust-save-btn').textContent=T().saveCustomer;
   ['c-name','c-phone','c-email','c-address','c-notes'].forEach(id=>document.getElementById(id).value='');
   window.currentGender='Female';
   document.getElementById('gc-f').classList.add('active');
@@ -1271,8 +1271,8 @@ window.initCustForm = function() {
 
 window.initOrderForm = function() {
   window.editingOrderId = null;
-  document.getElementById('o-modal-title').textContent = 'New Order';
-  document.getElementById('o-save-btn').textContent = 'Save Order';
+  document.getElementById('o-modal-title').textContent = T().newOrder;
+  document.getElementById('o-save-btn').textContent = T().saveOrder;
   const sel=document.getElementById('o-cust');
   sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
   const todayVal = new Date().toISOString().split('T')[0];
@@ -1492,7 +1492,7 @@ const LANGS = {
     workerHrs:'Hrs', workerPay:'Pay', workerPaid:'Paid', workerBal:'Balance',
     thankYou:'Thank you for choosing klosetbykiandka! 🌸',
     noMeas:'No measurements saved yet.',
-    custSig:'Customer Signature', storeSig:'Store Signature',
+    custSig:'Customer Signature', storeSig:'Store Signature', remove:'Remove',
     // Measurement sections
     mTopBody:'👗 Top Body', mHandsNeck:'✂️ Hands & Neck', mLengths:'📏 Lengths',
     mRounds:'🔵 Rounds & Other', mHandsSleeves:'✂️ Hands & Sleeves',
@@ -1530,7 +1530,7 @@ const LANGS = {
     workerHrs:'घंटे', workerPay:'भुगतान', workerPaid:'दिया', workerBal:'बकाया',
     thankYou:'klosetbykiandka चुनने के लिए धन्यवाद! 🌸',
     noMeas:'अभी कोई माप नहीं।',
-    custSig:'ग्राहक हस्ताक्षर', storeSig:'दुकान हस्ताक्षर',
+    custSig:'ग्राहक हस्ताक्षर', storeSig:'दुकान हस्ताक्षर', remove:'हटाएं',
     mTopBody:'👗 ऊपरी शरीर', mHandsNeck:'✂️ हाथ और गर्दन', mLengths:'📏 लंबाई',
     mRounds:'🔵 गोलाई और अन्य', mHandsSleeves:'✂️ हाथ और आस्तीन',
     mTopBodyM:'👔 ऊपरी शरीर',
@@ -1566,7 +1566,7 @@ const LANGS = {
     workerHrs:'గంటలు', workerPay:'చెల్లింపు', workerPaid:'చెల్లించారు', workerBal:'బాకీ',
     thankYou:'klosetbykiandka ఎంచుకున్నందుకు ధన్యవాదాలు! 🌸',
     noMeas:'కొలతలు సేవ్ చేయబడలేదు.',
-    custSig:'కస్టమర్ సంతకం', storeSig:'స్టోర్ సంతకం',
+    custSig:'కస్టమర్ సంతకం', storeSig:'స్టోర్ సంతకం', remove:'తొలగించు',
     mTopBody:'👗 పై శరీరం', mHandsNeck:'✂️ చేతులు & మెడ', mLengths:'📏 పొడవులు',
     mRounds:'🔵 చుట్టుకొలతలు & ఇతరాలు', mHandsSleeves:'✂️ చేతులు & చేతి అంచులు',
     mTopBodyM:'👔 పై శరీరం',
@@ -1693,6 +1693,11 @@ window.setLang = function(lang) {
   // Workers page
   const newWBtn=document.querySelector('#tab-workers .sec-header .btn');
   if(newWBtn) newWBtn.textContent=t.newWorker;
+  // Workers page titles
+  setEl('workers-page-title', t.workers);
+  setEl('weekly-ts-title', t.weeklyTimesheet);
+  setEl('workers-summary-title', t.workersSummary);
+  setEl('advances-title', t.advances);
   setEl('save-ts-btn', t.saveWeek);
   const tabOutEl=document.querySelector('#tab-workers .card > div:last-child > span');
   if(tabOutEl) tabOutEl.textContent=t.tabOut;
