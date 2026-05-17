@@ -151,14 +151,14 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 .gender-btn.f.active{background:var(--rose);color:#fff;}
 .gender-btn.m.active{background:var(--blue);color:#fff;}
 /* TIMESHEET */
-.ts-table{width:100%;border-collapse:collapse;font-size:.68rem;min-width:780px;}
-@media(min-width:1024px){.ts-table{min-width:0;font-size:.72rem;}}
-.ts-th{padding:.4rem .3rem;text-align:center;font-weight:400;font-size:.57rem;background:var(--dark);color:#fff;}
+.ts-table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:780px;}
+@media(min-width:1024px){.ts-table{min-width:0;font-size:.92rem;}}
+.ts-th{padding:.55rem .35rem;text-align:center;font-weight:500;font-size:.72rem;background:var(--dark);color:#fff;letter-spacing:.05em;}
 .ts-th.gold{background:var(--gold);color:var(--dark);}
 .ts-th.green{background:var(--green);color:#fff;}
 .ts-th.red{background:var(--red);color:#fff;}
 .ts-th.today{background:var(--gold);}
-.ts-inp{width:100%;border:1px solid var(--blush);padding:.3rem .2rem;text-align:center;font-size:.7rem;outline:none;border-radius:1px;}
+.ts-inp{width:100%;border:1px solid var(--blush);padding:.45rem .25rem;text-align:center;font-size:.95rem;font-weight:500;outline:none;border-radius:2px;min-height:36px;}
 .ts-inp.today{background:#f0f8f0;border-color:#a5d6a7;}
 .ts-inp.paid{background:#e8f5e9;border-color:#a5d6a7;}
 /* EMPTY */
@@ -297,18 +297,18 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
         <thead>
           <tr>
             <th class="ts-th" style="text-align:left;min-width:85px;vertical-align:bottom;" rowspan="2">Worker</th>
-            <th class="ts-th" id="th-Mon" colspan="2" style="min-width:80px;">Mon</th>
-            <th class="ts-th" id="th-Tue" colspan="2" style="min-width:80px;">Tue</th>
-            <th class="ts-th" id="th-Wed" colspan="2" style="min-width:80px;">Wed</th>
-            <th class="ts-th" id="th-Thu" colspan="2" style="min-width:80px;">Thu</th>
-            <th class="ts-th" id="th-Fri" colspan="2" style="min-width:80px;">Fri</th>
-            <th class="ts-th" id="th-Sat" colspan="2" style="min-width:80px;">Sat</th>
-            <th class="ts-th" id="th-Sun" colspan="2" style="min-width:80px;">Sun</th>
-            <th class="ts-th gold" style="min-width:42px;vertical-align:bottom;" rowspan="2">Days</th>
-            <th class="ts-th gold" style="min-width:42px;vertical-align:bottom;" rowspan="2">OT h</th>
-            <th class="ts-th gold" style="min-width:52px;vertical-align:bottom;" rowspan="2">Pay</th>
-            <th class="ts-th green" style="min-width:50px;vertical-align:bottom;" rowspan="2">Paid</th>
-            <th class="ts-th red" style="min-width:50px;vertical-align:bottom;" rowspan="2">Bal</th>
+            <th class="ts-th" id="th-Mon" colspan="2" style="min-width:100px;">Mon</th>
+            <th class="ts-th" id="th-Tue" colspan="2" style="min-width:100px;">Tue</th>
+            <th class="ts-th" id="th-Wed" colspan="2" style="min-width:100px;">Wed</th>
+            <th class="ts-th" id="th-Thu" colspan="2" style="min-width:100px;">Thu</th>
+            <th class="ts-th" id="th-Fri" colspan="2" style="min-width:100px;">Fri</th>
+            <th class="ts-th" id="th-Sat" colspan="2" style="min-width:100px;">Sat</th>
+            <th class="ts-th" id="th-Sun" colspan="2" style="min-width:100px;">Sun</th>
+            <th class="ts-th gold" style="min-width:55px;vertical-align:bottom;" rowspan="2">Days</th>
+            <th class="ts-th gold" style="min-width:55px;vertical-align:bottom;" rowspan="2">OT h</th>
+            <th class="ts-th gold" style="min-width:80px;vertical-align:bottom;" rowspan="2">Pay</th>
+            <th class="ts-th green" style="min-width:65px;vertical-align:bottom;" rowspan="2">Paid</th>
+            <th class="ts-th red" style="min-width:65px;vertical-align:bottom;" rowspan="2">Bal</th>
           </tr>
           <tr id="ts-subheader">
             <!-- ST/OT sub-headers injected by JS -->
@@ -363,10 +363,23 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
         <div class="field"><label class="label">Phone</label><input class="inp" id="o-phone" type="tel" maxlength="10" placeholder="9876543210"/></div>
         <div class="field"><label class="label">Order Date</label><input class="inp" id="o-date" type="date"/></div>
       </div>
-      <div class="field"><label class="label">Outfit *</label><input class="inp" id="o-outfit" placeholder="e.g. Bridal Lehenga"/></div>
+
+      <!-- OUTFITS LIST -->
+      <div style="background:var(--light);border:1px solid var(--blush);padding:.7rem;margin-bottom:.8rem;border-radius:2px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+          <label class="label" style="margin:0;">👗 Outfits *</label>
+          <button type="button" class="btn btn-sm" onclick="addOutfitRow()" style="padding:.3rem .6rem;font-size:.6rem;">+ Add Outfit</button>
+        </div>
+        <div id="outfits-list"></div>
+        <div style="display:flex;justify-content:space-between;padding-top:.5rem;margin-top:.5rem;border-top:1px solid var(--rose);font-size:.8rem;font-weight:600;">
+          <span>Total Amount:</span>
+          <span id="outfits-total" style="color:var(--gold);">₹0</span>
+        </div>
+      </div>
+
       <div class="row2">
-        <div class="field"><label class="label">Amount (₹)</label><input class="inp" id="o-amount" type="number" placeholder="13000"/></div>
-        <div class="field"><label class="label">Advance (₹)</label><input class="inp" id="o-advance" type="number" placeholder="5000"/></div>
+        <div class="field"><label class="label">Advance Paid (₹)</label><input class="inp" id="o-advance" type="number" placeholder="5000" oninput="updateOrderTotals()"/></div>
+        <div class="field"><label class="label">Balance Due</label><input class="inp" id="o-balance" type="text" readonly style="background:var(--light);color:var(--mid);"/></div>
       </div>
       <div class="row2">
         <div class="field"><label class="label">Delivery Date</label><input class="inp" id="o-delivery" type="date"/></div>
@@ -376,7 +389,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
           </select>
         </div>
       </div>
-      <div class="field"><label class="label">Notes</label><textarea class="ta" id="o-notes" placeholder="Fabric, embroidery details..."></textarea></div>
+      <div class="field"><label class="label">Notes / Instructions</label><textarea class="ta" id="o-notes" placeholder="Fabric, embroidery, special instructions..."></textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('add-order-modal')">Cancel</button>
@@ -625,7 +638,46 @@ async function loadAllData() {
   } catch(e) { console.error('Load error:', e); }
 }
 
-window.editingOrderId = null;
+// ═══ OUTFITS MANAGEMENT ═══
+window.addOutfitRow = function(outfit='', amount='') {
+  const list = document.getElementById('outfits-list');
+  const idx = list.children.length;
+  const row = document.createElement('div');
+  row.className = 'outfit-row';
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 32px;gap:.4rem;margin-bottom:.4rem;align-items:center;';
+  row.innerHTML = `
+    <input class="inp outfit-name" placeholder="e.g. Bridal Lehenga" value="${outfit}" style="font-size:.85rem;"/>
+    <input class="inp outfit-amount" type="number" placeholder="₹ Amount" value="${amount}" oninput="updateOrderTotals()" style="font-size:.85rem;"/>
+    <button type="button" onclick="this.parentElement.remove();updateOrderTotals();" style="background:none;border:1px solid var(--rose);color:var(--red);padding:.3rem;cursor:pointer;border-radius:2px;font-size:.9rem;line-height:1;min-height:36px;">✕</button>
+  `;
+  list.appendChild(row);
+  updateOrderTotals();
+};
+
+window.updateOrderTotals = function() {
+  const amounts = Array.from(document.querySelectorAll('.outfit-amount')).map(i=>parseFloat(i.value)||0);
+  const total = amounts.reduce((a,b)=>a+b,0);
+  const advance = parseFloat(document.getElementById('o-advance').value)||0;
+  const balance = total - advance;
+  document.getElementById('outfits-total').textContent = '₹'+total.toLocaleString();
+  document.getElementById('o-balance').value = balance>0?'₹'+balance.toLocaleString():balance===0?'Paid ✅':'Excess ₹'+Math.abs(balance);
+  document.getElementById('o-balance').style.color = balance>0?'var(--red)':'var(--green)';
+};
+
+window.initOrderForm = function() {
+  window.editingOrderId = null;
+  document.getElementById('o-modal-title').textContent = T().newOrder.replace('+ ','');
+  document.getElementById('o-save-btn').textContent = T().saveOrder;
+  const sel=document.getElementById('o-cust');
+  sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
+  document.getElementById('o-date').value=tod();
+  ['o-phone','o-advance','o-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('o-delivery').value='';
+  document.getElementById('o-status').value='Pending';
+  // Reset outfits list with one empty row
+  document.getElementById('outfits-list').innerHTML='';
+  addOutfitRow();
+};
 
 window.editCurrentOrder = function() {
   const id = window.viewingOrderId;
@@ -633,18 +685,23 @@ window.editCurrentOrder = function() {
   const o = window.DB.orders.find(x=>x.id===id);
   if(!o) return;
   window.editingOrderId = id;
-  // Populate form
   const sel = document.getElementById('o-cust');
   sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
   sel.value = o.customer||'';
   document.getElementById('o-phone').value = o.phone||'';
   document.getElementById('o-date').value = o.date||tod();
-  document.getElementById('o-outfit').value = o.outfit||'';
-  document.getElementById('o-amount').value = o.amount||'';
   document.getElementById('o-advance').value = o.advance||'';
   document.getElementById('o-delivery').value = o.delivery||'';
   document.getElementById('o-status').value = o.status||'Pending';
   document.getElementById('o-notes').value = o.notes||'';
+  // Load outfits — support old single-outfit and new multi-outfit format
+  document.getElementById('outfits-list').innerHTML='';
+  if(o.outfits && Array.isArray(o.outfits) && o.outfits.length){
+    o.outfits.forEach(of=>addOutfitRow(of.name||'', of.amount||''));
+  } else {
+    // Legacy single outfit
+    addOutfitRow(o.outfit||'', o.amount||'');
+  }
   document.getElementById('o-modal-title').textContent = 'Edit Order';
   document.getElementById('o-save-btn').textContent = '💾 Save Changes';
   closeModal('view-order-modal');
@@ -653,14 +710,25 @@ window.editCurrentOrder = function() {
 
 window.saveOrder = async function() {
   const custName = document.getElementById('o-cust').value;
-  const outfit = document.getElementById('o-outfit').value.trim();
-  if(!custName || !outfit) { alert('Please select customer and enter outfit'); return; }
+  // Collect all outfit rows
+  const rows = document.querySelectorAll('.outfit-row');
+  const outfits = [];
+  rows.forEach(r=>{
+    const name = r.querySelector('.outfit-name').value.trim();
+    const amount = parseFloat(r.querySelector('.outfit-amount').value)||0;
+    if(name) outfits.push({name, amount});
+  });
+  if(!custName || !outfits.length) { alert('Please select customer and add at least one outfit'); return; }
+  const totalAmount = outfits.reduce((s,o)=>s+(o.amount||0),0);
+  // Summary outfit text for display
+  const outfitSummary = outfits.length===1 ? outfits[0].name : outfits.map(o=>o.name).join(' + ');
   const orderData = {
     customer: custName,
     phone: document.getElementById('o-phone').value,
     date: document.getElementById('o-date').value,
-    outfit,
-    amount: document.getElementById('o-amount').value,
+    outfit: outfitSummary,  // for display & search
+    outfits: outfits,        // detailed list
+    amount: totalAmount,
     advance: document.getElementById('o-advance').value,
     delivery: document.getElementById('o-delivery').value,
     status: document.getElementById('o-status').value,
@@ -668,11 +736,10 @@ window.saveOrder = async function() {
   };
   const editId = window.editingOrderId;
   if(editId) {
-    // Update existing order
     await updateDoc(doc(db,'orders',editId), {...orderData, updatedAt: new Date().toISOString()});
     const idx = window.DB.orders.findIndex(o=>o.id===editId);
     if(idx>-1) window.DB.orders[idx] = {...window.DB.orders[idx], ...orderData};
-    const act = addAct('Updated order: '+outfit+' for '+custName);
+    const act = addAct('Updated order: '+outfitSummary+' for '+custName);
     await addDoc(collection(db,'activity'), act);
     window.DB.activity.unshift(act);
     window.editingOrderId = null;
@@ -680,15 +747,13 @@ window.saveOrder = async function() {
     document.getElementById('o-modal-title').textContent = 'New Order';
     document.getElementById('o-save-btn').textContent = 'Save Order';
     renderOrders(); updateDash(); showSave();
-    // Reopen view modal with updated data
     setTimeout(()=>viewOrder(editId), 150);
   } else {
-    // New order
     const order = {...orderData, createdAt: new Date().toISOString()};
     const docRef = await addDoc(collection(db, 'orders'), order);
     order.id = docRef.id;
     window.DB.orders.unshift(order);
-    const act = addAct('New order: '+outfit+' for '+custName);
+    const act = addAct('New order: '+outfitSummary+' for '+custName);
     await addDoc(collection(db, 'activity'), act);
     window.DB.activity.unshift(act);
     closeModal('add-order-modal');
@@ -848,9 +913,8 @@ window.viewWorker = function(id) {
   document.getElementById('vw-name').textContent=w.name;
   const current=getWorkerRateForDate(w,tod());
   const allHrs = window.DB.hours.filter(h=>h.wid===id);
-  const totSTHrs = allHrs.reduce((s,h)=>s+parseFloat(h.st||h.hours||0),0);
+  const totDays = allHrs.reduce((s,h)=>s+parseFloat(h.st||0),0);
   const totOTHrs = allHrs.reduce((s,h)=>s+parseFloat(h.ot||0),0);
-  const totDays = Math.round((totSTHrs/8)*2)/2;
   const advGiven=(window.DB.advances||[]).filter(a=>a.wid===id&&a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
   const advRepaid=(window.DB.advances||[]).filter(a=>a.wid===id&&a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
   const outstanding=advGiven-advRepaid;
@@ -1135,30 +1199,44 @@ window.viewOrder = function(id) {
   if(!o) return;
   const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
   const statusLabel = T()[o.status.toLowerCase()]||o.status;
-  document.getElementById('vo-title').textContent = o.outfit||T().orders;
+  document.getElementById('vo-title').textContent = (o.outfits&&o.outfits.length>1?o.outfits.length+' Outfits':o.outfit)||T().orders;
+  const outfitsList = (o.outfits&&o.outfits.length)
+    ? o.outfits
+    : [{name:o.outfit||'-', amount:parseFloat(o.amount)||0}];
   document.getElementById('vo-body').innerHTML = `
     <div style="background:var(--light);padding:.8rem;border-left:3px solid var(--gold);margin-bottom:.8rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-        <span style="font-size:.8rem;font-weight:500;">👤 ${o.customer||''}</span>
+        <span style="font-size:.85rem;font-weight:500;">👤 ${o.customer||''}</span>
         <span class="badge ${bClass(o.status)}">${statusLabel}</span>
       </div>
-      ${o.phone?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📞 ${o.phone}</div>`:''}
-      ${o.date?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📅 ${T().orderDate}: ${fmtD(o.date)}</div>`:''}
-      ${o.delivery&&o.status!=='Delivered'?`<div style="font-size:.72rem;color:var(--blue);margin-bottom:.2rem;">🗓 ${T().deliverBy}: <strong>${fmtD(o.delivery)}</strong></div>`:''}
-      ${o.deliveredOn&&o.status==='Delivered'?`<div style="font-size:.72rem;color:var(--green);">✅ ${T().deliveredOn}: <strong>${fmtD(o.deliveredOn)}</strong></div>`:''}
+      ${o.phone?`<div style="font-size:.75rem;color:var(--mid);margin-bottom:.2rem;">📞 ${o.phone}</div>`:''}
+      ${o.date?`<div style="font-size:.75rem;color:var(--mid);margin-bottom:.2rem;">📅 ${T().orderDate}: ${fmtD(o.date)}</div>`:''}
+      ${o.delivery&&o.status!=='Delivered'?`<div style="font-size:.75rem;color:var(--blue);margin-bottom:.2rem;">🗓 ${T().deliverBy}: <strong>${fmtD(o.delivery)}</strong></div>`:''}
+      ${o.deliveredOn&&o.status==='Delivered'?`<div style="font-size:.75rem;color:var(--green);">✅ ${T().deliveredOn}: <strong>${fmtD(o.deliveredOn)}</strong></div>`:''}
     </div>
+
+    <div style="background:var(--white);border:1px solid var(--blush);padding:.7rem;margin-bottom:.8rem;border-radius:2px;">
+      <div style="font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.5rem;">👗 Outfits</div>
+      ${outfitsList.map((of,i)=>`
+        <div style="display:flex;justify-content:space-between;padding:.4rem 0;${i<outfitsList.length-1?'border-bottom:1px solid var(--blush);':''}">
+          <span style="font-size:.85rem;font-weight:500;">${of.name}</span>
+          <span style="font-size:.85rem;color:var(--gold);font-weight:600;">${of.amount?'₹'+parseInt(of.amount).toLocaleString():'-'}</span>
+        </div>
+      `).join('')}
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
       ${[[T().total,o.amount?'₹'+parseInt(o.amount).toLocaleString():'-','var(--dark)'],[T().advancePaid,o.advance?'₹'+parseInt(o.advance).toLocaleString():'-','var(--green)'],[T().balance,bal>0?'₹'+bal.toLocaleString():T().paid,bal>0?'var(--red)':'var(--green)']].map(([l,v,c])=>`
       <div style="background:var(--light);padding:.6rem;text-align:center;">
-        <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:.2rem;">${l}</div>
-        <div style="font-size:.88rem;font-weight:500;color:${c};">${v}</div>
+        <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:.2rem;">${l}</div>
+        <div style="font-size:.9rem;font-weight:500;color:${c};">${v}</div>
       </div>`).join('')}
     </div>
     ${bal>0?`<div style="background:#fff3e0;border:1px solid #ffcc80;padding:.6rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:.72rem;color:#e65100;">⚠️ ${T().balance}: ₹${bal.toLocaleString()}</span>
+      <span style="font-size:.75rem;color:#e65100;">⚠️ ${T().balance}: ₹${bal.toLocaleString()}</span>
       <button class="btn btn-sm btn-red" onclick="markBalancePaid('${o.id}')">${T().markPaid}</button>
     </div>`:''}
-    ${o.notes?`<div style="background:#fffdf8;border:1px solid #f0e8d0;padding:.7rem;font-size:.73rem;color:var(--mid);margin-bottom:.8rem;">📝 ${o.notes}</div>`:''}
+    ${o.notes?`<div style="background:#fffdf8;border:1px solid #f0e8d0;padding:.7rem;font-size:.78rem;color:var(--mid);margin-bottom:.8rem;">📝 ${o.notes}</div>`:''}
     <div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.5rem;">${T().updateStatus}</div>
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem;">
       ${STATUSES.map(s=>`<button class="btn btn-sm ${s===o.status?'btn-gold':'btn-outline'}" onclick="updOrderStatus('${o.id}','${s}')">${T()[s.toLowerCase()]||s}</button>`).join('')}
@@ -1277,16 +1355,16 @@ function renderTimesheet() {
     }
   });
 
-  // Build ST/OT sub-header row
+  // Build ST/OT sub-header row with both labels visible
   const subHeader = document.getElementById('ts-subheader');
   if(subHeader){
     subHeader.innerHTML = dayNames.map((n,i)=>{
       const isToday=days[i]===todayStr;
       const isFuture=days[i]>todayStr;
       const bg=isToday?'var(--gold)':isFuture?'#3a3030':'';
-      const col=isToday?'var(--dark)':'';
-      return `<th style="padding:.25rem .2rem;text-align:center;font-weight:400;font-size:.52rem;background:${bg};color:${col||'rgba(255,255,255,.7)'};border-right:none;">ST</th>
-              <th style="padding:.25rem .2rem;text-align:center;font-weight:400;font-size:.52rem;background:${bg?bg:'rgba(255,140,100,.15)'};color:${col||'rgba(255,180,100,.9)'};border-left:1px solid rgba(255,255,255,.1);">OT</th>`;
+      const col=isToday?'var(--dark)':'rgba(255,255,255,.8)';
+      return `<th style="padding:.4rem .25rem;text-align:center;font-weight:500;font-size:.65rem;background:${bg||'rgba(201,169,110,.25)'};color:${isToday?'var(--dark)':'var(--gold)'};border-right:none;letter-spacing:.05em;">ST</th>
+              <th style="padding:.4rem .25rem;text-align:center;font-weight:500;font-size:.65rem;background:${bg||'rgba(255,140,100,.2)'};color:${isToday?'var(--dark)':'#c97d30'};border-left:1px solid rgba(255,255,255,.1);letter-spacing:.05em;">OT</th>`;
     }).join('');
   }
 
@@ -1297,69 +1375,63 @@ function renderTimesheet() {
   }
 
   tbody.innerHTML=window.DB.workers.map(w=>{
-    // Get rate for this week
     const rate=getWorkerRateForDate(w,days[0]);
     const dayRate=rate?.dayRate||parseFloat(w.rate)||0;
     const otRate=rate?.otRate||0;
 
-    // Calculate weekly totals
-    let totalST=0, totalOT=0;
+    let totalDays=0, totalOT=0;
     const cells=days.map((date)=>{
       const e=window.DB.hours.find(h=>h.wid===w.id&&h.date===date);
-      const st=e?.st||0;
+      const st=e?.st||0; // ST is days now (1 or 0.5)
       const ot=e?.ot||0;
-      totalST+=parseFloat(st);
+      totalDays+=parseFloat(st);
       totalOT+=parseFloat(ot);
       const isToday=date===todayStr;
       const isFuture=date>todayStr;
       const bg=isToday?'background:#f0f8f0;':isFuture?'background:#2a1a1a;':'';
-      return `<td style="padding:.1rem;border-right:none;">
-        <input type="number" min="0" max="24" step=".5" value="${st||''}" placeholder="-"
-          class="ts-inp${isToday?' today':''}" style="${bg}font-size:.65rem;"
-          title="Standard hours" onblur="updateHourCellST('${w.id}','${date}',this.value)"/>
+      return `<td style="padding:.15rem;border-right:none;">
+        <input type="number" min="0" max="1" step=".5" value="${st||''}" placeholder="-"
+          class="ts-inp${isToday?' today':''}" style="${bg}font-size:.95rem;font-weight:500;"
+          title="1 = full day, 0.5 = half day" onblur="updateHourCellST('${w.id}','${date}',this.value)"/>
       </td>
-      <td style="padding:.1rem;border-left:1px solid rgba(201,169,110,.2);">
+      <td style="padding:.15rem;border-left:1px solid rgba(201,169,110,.2);">
         <input type="number" min="0" max="12" step=".5" value="${ot||''}" placeholder="-"
-          class="ts-inp${isToday?' today':''}" style="${bg}font-size:.65rem;background:${isToday?'#f0f8f0':'#fffaf0'};"
-          title="Overtime hours" onblur="updateHourCellOT('${w.id}','${date}',this.value)"/>
+          class="ts-inp${isToday?' today':''}" style="${bg}font-size:.95rem;font-weight:500;background:${isToday?'#f0f8f0':'#fffaf0'};"
+          title="OT hours" onblur="updateHourCellOT('${w.id}','${date}',this.value)"/>
       </td>`;
     }).join('');
 
-    // Pay = (full/half days × day rate) + (OT hrs × OT rate)
-    // 8 hrs = 1 full day, 4 hrs = 0.5 day
-    // Round to nearest 0.5
-    const stDays = Math.round((totalST/8)*2)/2;
-    const stPay = stDays*dayRate;
-    const otPay = totalOT*otRate;
-    const totalPay = stPay+otPay;
+    // Pay = (days entered × day rate) + (OT hrs × OT rate)
+    const stPay=totalDays*dayRate;
+    const otPay=totalOT*otRate;
+    const totalPay=stPay+otPay;
 
     const weekKey='wpaid_'+w.id+'_'+days[0];
     const paid=(window.DB.weekPaid||{})[weekKey]||0;
     const balance=Math.max(0,Math.round(totalPay)-paid);
 
     return `<tr style="border-bottom:2px solid var(--blush);">
-      <td style="padding:.35rem .4rem;cursor:pointer;" onclick="viewWorker('${w.id}')">
-        <div style="font-size:.7rem;font-weight:500;color:var(--gold);text-decoration:underline;">${w.name}</div>
-        <div style="font-size:.55rem;color:var(--mid);">${w.role}</div>
-        <div style="font-size:.52rem;color:var(--mid);">₹${dayRate}/day${otRate?' · OT:₹'+otRate+'/h':''}</div>
+      <td style="padding:.6rem .5rem;cursor:pointer;" onclick="viewWorker('${w.id}')">
+        <div style="font-size:.95rem;font-weight:500;color:var(--gold);text-decoration:underline;">${w.name}</div>
+        <div style="font-size:.75rem;color:var(--mid);">${w.role}</div>
+        <div style="font-size:.72rem;color:var(--mid);">₹${dayRate}/day${otRate?' · OT:₹'+otRate+'/h':''}</div>
       </td>
       ${cells}
-      <td style="text-align:center;font-weight:600;font-size:.65rem;padding:.2rem;background:rgba(201,169,110,.08);">
-        <div>${totalST>0?totalST+'h':'-'}</div>
-        <div style="font-size:.52rem;color:var(--mid);">${stDays>0?stDays.toFixed(1)+'d':''}</div>
+      <td style="text-align:center;font-weight:600;font-size:.95rem;padding:.4rem;background:rgba(201,169,110,.08);">
+        ${totalDays>0?totalDays+'d':'-'}
       </td>
-      <td style="text-align:center;font-weight:600;font-size:.65rem;padding:.2rem;background:rgba(201,169,110,.08);color:#c97d30;">
+      <td style="text-align:center;font-weight:600;font-size:.95rem;padding:.4rem;background:rgba(201,169,110,.08);color:#c97d30;">
         ${totalOT>0?totalOT+'h':'-'}
       </td>
-      <td style="text-align:center;font-size:.65rem;padding:.2rem;background:rgba(201,169,110,.08);">
+      <td style="text-align:center;font-size:.88rem;padding:.4rem;background:rgba(201,169,110,.08);">
         ${totalPay>0?`<div style="font-weight:600;">₹${Math.round(totalPay).toLocaleString()}</div>
-        <div style="font-size:.52rem;color:var(--mid);">${stPay>0?'ST:₹'+Math.round(stPay):''}${otPay>0?' OT:₹'+Math.round(otPay):''}` :'<div>-</div>'}</div>
+          <div style="font-size:.68rem;color:var(--mid);">${stPay>0?'ST:₹'+Math.round(stPay):''}${otPay>0?' + OT:₹'+Math.round(otPay):''}</div>` :'<div>-</div>'}
       </td>
-      <td style="padding:.15rem;">
+      <td style="padding:.2rem;">
         <input type="number" min="0" step="1" value="${paid||''}" placeholder="0"
-          class="ts-inp paid" onblur="updatePaidCell('${w.id}','${weekKey}',this.value)"/>
+          class="ts-inp paid" style="font-size:.9rem;font-weight:500;" onblur="updatePaidCell('${w.id}','${weekKey}',this.value)"/>
       </td>
-      <td style="text-align:center;font-size:.68rem;font-weight:500;color:${balance>0?'var(--red)':'var(--green)'};padding:.2rem;">
+      <td style="text-align:center;font-size:.9rem;font-weight:600;color:${balance>0?'var(--red)':'var(--green)'};padding:.4rem;">
         ${totalPay>0?(balance>0?'₹'+balance.toLocaleString():'✅'):'-'}
       </td>
     </tr>`;
@@ -1372,31 +1444,29 @@ window.renderWorkers = function() {
   const sumEl=document.getElementById('workers-summary');
   if(!window.DB.workers.length){sumEl.innerHTML='<div class="empty"><div>No workers yet</div></div>';return;}
   sumEl.innerHTML=window.DB.workers.map(w=>{
-    // Calculate ST and OT separately from all hours
     const allHours = window.DB.hours.filter(h=>h.wid===w.id);
-    const totSTHrs = allHours.reduce((s,h)=>s+parseFloat(h.st||h.hours||0),0);
+    const totDays = allHours.reduce((s,h)=>s+parseFloat(h.st||0),0);
     const totOTHrs = allHours.reduce((s,h)=>s+parseFloat(h.ot||0),0);
     const current=getWorkerRateForDate(w,tod());
     const dayRate=current?.dayRate||parseFloat(w.rate)||0;
     const otRate=current?.otRate||0;
-    const totDays = Math.round((totSTHrs/8)*2)/2;
     const earn = (totDays*dayRate)+(totOTHrs*otRate);
     const advGiven=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
     const advRepaid=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
     const outstanding=advGiven-advRepaid;
     const netPay=parseInt(earn)-outstanding;
-    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--blush);cursor:pointer;" onclick="viewWorker('${w.id}')">
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--blush);cursor:pointer;" onclick="viewWorker('${w.id}')">
       <div>
-        <div style="font-size:.78rem;font-weight:500;color:var(--gold);text-decoration:underline;">${w.name}</div>
-        <div style="font-size:.62rem;color:var(--mid);">${w.role}${w.phone?' · 📞 '+w.phone:''}</div>
-        <div style="font-size:.6rem;color:var(--mid);">₹${dayRate}/day${otRate?' · OT:₹'+otRate+'/hr':''}</div>
-        ${outstanding>0?`<div style="font-size:.62rem;color:var(--red);">Advance due: ₹${outstanding.toLocaleString()}</div>`:''}
+        <div style="font-size:.95rem;font-weight:500;color:var(--gold);text-decoration:underline;">${w.name}</div>
+        <div style="font-size:.78rem;color:var(--mid);">${w.role}${w.phone?' · 📞 '+w.phone:''}</div>
+        <div style="font-size:.75rem;color:var(--mid);">₹${dayRate}/day${otRate?' · OT:₹'+otRate+'/hr':''}</div>
+        ${outstanding>0?`<div style="font-size:.75rem;color:var(--red);">Advance due: ₹${outstanding.toLocaleString()}</div>`:''}
       </div>
       <div style="text-align:right;">
-        <div style="font-size:.75rem;font-weight:500;">${totDays}d ${totOTHrs>0?'+ '+totOTHrs+'OT h':''}</div>
-        <div style="font-size:.72rem;color:var(--gold);font-weight:600;">${dayRate?'₹'+Math.round(earn).toLocaleString():'-'}</div>
-        ${outstanding>0?`<div style="font-size:.65rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
-        <div style="font-size:.58rem;color:var(--gold);margin-top:.2rem;">Tap to view →</div>
+        <div style="font-size:.88rem;font-weight:500;">${totDays}d ${totOTHrs>0?'+ '+totOTHrs+' OT h':''}</div>
+        <div style="font-size:.95rem;color:var(--gold);font-weight:600;">${dayRate?'₹'+Math.round(earn).toLocaleString():'-'}</div>
+        ${outstanding>0?`<div style="font-size:.78rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
+        <div style="font-size:.7rem;color:var(--gold);margin-top:.3rem;">Tap to view →</div>
       </div>
     </div>`;
   }).join('');
@@ -1619,18 +1689,7 @@ window.initCustForm = function() {
   buildMeasFields('Female');
 };
 
-window.initOrderForm = function() {
-  window.editingOrderId = null;
-  document.getElementById('o-modal-title').textContent = T().newOrder;
-  document.getElementById('o-save-btn').textContent = T().saveOrder;
-  const sel=document.getElementById('o-cust');
-  sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
-  const todayVal = new Date().toISOString().split('T')[0];
-  document.getElementById('o-date').value=todayVal;
-  ['o-phone','o-outfit','o-amount','o-advance','o-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('o-delivery').value='';
-  document.getElementById('o-status').value='Pending';
-};
+window.initOrderForm = window.initOrderForm; // already defined above
 
 window.initAdvForm = function() {
   const sel=document.getElementById('a-worker');
@@ -1708,10 +1767,6 @@ window.printOrder = function(id) {
           <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Address</span>
           <span style="font-size:.82rem;">${cust.address}</span>
         </div>`:''}
-        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
-          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Outfit</span>
-          <span style="font-weight:600;font-size:.88rem;">${o.outfit||''}</span>
-        </div>
         ${o.date?`<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
           <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Order Date</span>
           <span style="font-size:.85rem;">${fmtD(o.date)}</span>
@@ -1724,6 +1779,19 @@ window.printOrder = function(id) {
           <div style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.2rem;">Notes / Instructions</div>
           <div style="font-size:.83rem;color:#2c2420;font-style:italic;">${o.notes}</div>
         </div>`:''}
+      </div>
+
+      <!-- OUTFITS LIST -->
+      <div style="margin-bottom:1rem;">
+        <div style="background:#2c2420;color:#fff;padding:.35rem .7rem;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:0;">👗 Outfits</div>
+        <table style="width:100%;border-collapse:collapse;">
+          ${(o.outfits&&o.outfits.length?o.outfits:[{name:o.outfit||'-',amount:parseFloat(o.amount)||0}]).map((of,i)=>`
+            <tr>
+              <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.85rem;font-weight:500;">${i+1}. ${of.name}</td>
+              <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.85rem;text-align:right;color:#c9a96e;font-weight:600;">${of.amount?'₹'+parseInt(of.amount).toLocaleString():''}</td>
+            </tr>
+          `).join('')}
+        </table>
       </div>
       ${Object.keys(meas).length?`
       <div style="margin-bottom:1rem;">
