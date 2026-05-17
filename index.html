@@ -1154,79 +1154,87 @@ window.showTab = function(id, el) {
 window.printOrder = function(id) {
   const o = window.DB.orders.find(x=>x.id===id);
   if(!o) return;
-  const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
+  // Find customer measurements
+  const cust = window.DB.customers.find(c=>c.name===o.customer);
+  const meas = cust?.measurements||{};
+  const measRows = Object.entries(meas).map(([f,d])=>`
+    <tr>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.8rem;">${f}</td>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.8rem;font-weight:600;text-align:center;">${d.v?d.v+'"':'-'}</td>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.75rem;color:#c9a96e;font-style:italic;">${d.n||''}</td>
+    </tr>
+  `).join('');
+
   const content = `
-    <html><head><title>Order - ${o.outfit}</title>
-    <style>
-      *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Georgia',serif;padding:2rem;color:#2c2420;max-width:600px;margin:0 auto;}
-      .header{text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:1rem;margin-bottom:1.5rem;}
-      .brand{font-size:1.8rem;color:#2c2420;letter-spacing:.05em;}
-      .brand span{color:#c9a96e;font-style:italic;}
-      .sub{font-size:.75rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.3rem;}
-      .title{font-size:1.3rem;font-weight:bold;margin-bottom:1rem;color:#2c2420;}
-      .info-box{background:#fdf8f5;border-left:3px solid #c9a96e;padding:.8rem 1rem;margin-bottom:1rem;}
-      .info-row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #f5ddd7;font-size:.85rem;}
-      .info-row:last-child{border-bottom:none;}
-      .info-label{color:#7a5f5a;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;}
-      .info-val{font-weight:500;}
-      .amounts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;}
-      .amount-box{text-align:center;padding:.8rem;background:#fdf8f5;border:1px solid #f5ddd7;}
-      .amount-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;color:#7a5f5a;margin-bottom:.3rem;}
-      .amount-val{font-size:1.2rem;font-weight:bold;}
-      .notes-box{background:#fffdf8;border:1px solid #f0e8d0;padding:.8rem;font-size:.85rem;margin:1rem 0;}
-      .badge{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.7rem;font-weight:bold;text-transform:uppercase;letter-spacing:.1em;}
-      .footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #f5ddd7;text-align:center;font-size:.72rem;color:#7a5f5a;}
-      .sig-box{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;}
-      .sig-line{border-top:1px solid #2c2420;padding-top:.3rem;font-size:.7rem;color:#7a5f5a;text-align:center;}
-      @media print{body{padding:1rem;}}
-    </style></head>
-    <body>
-      <div class="header">
-        <div class="brand">kloset<span>by</span>kiandka</div>
-        <div class="sub">Boutique · Mangalgiri</div>
-        <div class="sub" style="margin-top:.2rem;">📞 88011 51111 · @klosetbykiandka</div>
+    <div style="font-family:Georgia,serif;padding:1.5rem;color:#2c2420;max-width:580px;margin:0 auto;">
+      <div style="text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:.8rem;margin-bottom:1.2rem;">
+        <div style="font-size:1.6rem;letter-spacing:.05em;">kloset<span style="color:#c9a96e;font-style:italic;">by</span>kiandka</div>
+        <div style="font-size:.7rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.2rem;">Boutique · Mangalgiri</div>
+        <div style="font-size:.7rem;color:#7a5f5a;margin-top:.2rem;">📞 88011 51111 &nbsp;·&nbsp; @klosetbykiandka</div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-        <div class="title">Order Receipt</div>
-        <span class="badge" style="background:${(STATUS_COLORS[o.status]||{}).bg||'#eee'};color:${(STATUS_COLORS[o.status]||{}).color||'#666'};">${o.status}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;">
+        <div style="font-size:1.1rem;font-weight:bold;">Order Slip</div>
+        <div style="font-size:.75rem;color:#7a5f5a;">Date: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
       </div>
-      <div class="info-box">
-        <div class="info-row"><span class="info-label">Customer</span><span class="info-val">${o.customer||''}</span></div>
-        ${o.phone?`<div class="info-row"><span class="info-label">Phone</span><span class="info-val">${o.phone}</span></div>`:''}
-        <div class="info-row"><span class="info-label">Outfit</span><span class="info-val">${o.outfit||''}</span></div>
-        ${o.date?`<div class="info-row"><span class="info-label">Order Date</span><span class="info-val">${fmtD(o.date)}</span></div>`:''}
-        ${o.delivery?`<div class="info-row"><span class="info-label">Delivery Date</span><span class="info-val">${fmtD(o.delivery)}</span></div>`:''}
-        ${o.deliveredOn?`<div class="info-row"><span class="info-label">Delivered On</span><span class="info-val">${fmtD(o.deliveredOn)}</span></div>`:''}
-      </div>
-      <div class="amounts">
-        <div class="amount-box">
-          <div class="amount-label">Total</div>
-          <div class="amount-val" style="color:#2c2420;">${o.amount?'₹'+parseInt(o.amount).toLocaleString():'-'}</div>
+      <div style="background:#fdf8f5;border-left:3px solid #c9a96e;padding:.7rem 1rem;margin-bottom:1rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Customer</span>
+          <span style="font-weight:600;font-size:.88rem;">${o.customer||''}</span>
         </div>
-        <div class="amount-box">
-          <div class="amount-label">Advance Paid</div>
-          <div class="amount-val" style="color:#4caf7d;">${o.advance?'₹'+parseInt(o.advance).toLocaleString():'-'}</div>
+        ${o.phone?`<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Phone</span>
+          <span style="font-size:.85rem;">${o.phone}</span>
+        </div>`:''}
+        ${cust?.address?`<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Address</span>
+          <span style="font-size:.82rem;">${cust.address}</span>
+        </div>`:''}
+        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Outfit</span>
+          <span style="font-weight:600;font-size:.88rem;">${o.outfit||''}</span>
         </div>
-        <div class="amount-box">
-          <div class="amount-label">Balance Due</div>
-          <div class="amount-val" style="color:${bal>0?'#e07b6a':'#4caf7d'};">${bal>0?'₹'+bal.toLocaleString():'Paid ✅'}</div>
-        </div>
+        ${o.date?`<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Order Date</span>
+          <span style="font-size:.85rem;">${fmtD(o.date)}</span>
+        </div>`:''}
+        ${o.delivery?`<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Deliver By</span>
+          <span style="font-size:.85rem;font-weight:600;color:#c9a96e;">${fmtD(o.delivery)}</span>
+        </div>`:''}
+        ${o.notes?`<div style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid #f5ddd7;font-size:.78rem;color:#7a5f5a;">📝 ${o.notes}</div>`:''}
       </div>
-      ${o.notes?`<div class="notes-box"><strong>Notes:</strong> ${o.notes}</div>`:''}
-      <div class="sig-box">
-        <div class="sig-line">Customer Signature</div>
-        <div class="sig-line">Store Signature</div>
+      ${Object.keys(meas).length?`
+      <div style="margin-bottom:1rem;">
+        <div style="background:#2c2420;color:#fff;padding:.35rem .7rem;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:0;">📏 Measurements (${cust?.gender||''})</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="background:#f5ddd7;">
+            <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;">Measurement</td>
+            <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;text-align:center;">Inches</td>
+            <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;">Notes</td>
+          </tr></thead>
+          <tbody>${measRows}</tbody>
+        </table>
+      </div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #f5ddd7;">
+        <div style="border-top:1px solid #2c2420;padding-top:.3rem;font-size:.68rem;color:#7a5f5a;text-align:center;">Customer Signature</div>
+        <div style="border-top:1px solid #2c2420;padding-top:.3rem;font-size:.68rem;color:#7a5f5a;text-align:center;">Store Signature</div>
       </div>
-      <div class="footer">
-        Thank you for choosing klosetbykiandka! · Printed on ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
-      </div>
-    </body></html>
+      <div style="text-align:center;margin-top:1rem;font-size:.68rem;color:#7a5f5a;">Thank you for choosing klosetbykiandka! 🌸</div>
+    </div>
   `;
-  const win = window.open('','_blank');
-  win.document.write(content);
-  win.document.close();
-  win.onload = () => { win.print(); };
+
+  // Use iframe to avoid popup blocker on iPad
+  const printFrame = document.getElementById('print-frame') || (() => {
+    const f = document.createElement('iframe');
+    f.id = 'print-frame';
+    f.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;';
+    document.body.appendChild(f);
+    return f;
+  })();
+  printFrame.contentDocument.open();
+  printFrame.contentDocument.write('<html><head><style>@media print{body{margin:0;}}</style></head><body>'+content+'</body></html>');
+  printFrame.contentDocument.close();
+  setTimeout(()=>printFrame.contentWindow.print(), 500);
 };
 
 window.printMeasurements = function(id) {
@@ -1235,64 +1243,53 @@ window.printMeasurements = function(id) {
   const meas = c.measurements||{};
   const measRows = Object.entries(meas).map(([f,d])=>`
     <tr>
-      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.82rem;">${f}</td>
-      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.82rem;font-weight:600;text-align:center;">${d.v?d.v+'"':'-'}</td>
-      <td style="padding:.4rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.75rem;color:#c9a96e;font-style:italic;">${d.n||''}</td>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.8rem;">${f}</td>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.8rem;font-weight:600;text-align:center;">${d.v?d.v+'"':'-'}</td>
+      <td style="padding:.35rem .6rem;border-bottom:1px solid #f5ddd7;font-size:.75rem;color:#c9a96e;font-style:italic;">${d.n||''}</td>
     </tr>
   `).join('');
+
   const content = `
-    <html><head><title>Measurements - ${c.name}</title>
-    <style>
-      *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Georgia',serif;padding:2rem;color:#2c2420;max-width:600px;margin:0 auto;}
-      .header{text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:1rem;margin-bottom:1.5rem;}
-      .brand{font-size:1.8rem;color:#2c2420;letter-spacing:.05em;}
-      .brand span{color:#c9a96e;font-style:italic;}
-      .sub{font-size:.75rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.3rem;}
-      .cust-info{background:#fdf8f5;border-left:3px solid #c9a96e;padding:.8rem 1rem;margin-bottom:1.2rem;}
-      .cust-name{font-size:1.2rem;font-weight:bold;margin-bottom:.3rem;}
-      .cust-detail{font-size:.78rem;color:#7a5f5a;}
-      .section-title{background:#2c2420;color:#fff;padding:.4rem .8rem;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:0;}
-      table{width:100%;border-collapse:collapse;margin-bottom:1rem;}
-      thead tr{background:#f5ddd7;}
-      thead td{padding:.4rem .6rem;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#7a5f5a;font-weight:600;}
-      .footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid #f5ddd7;text-align:center;font-size:.72rem;color:#7a5f5a;}
-      @media print{body{padding:1rem;}}
-    </style></head>
-    <body>
-      <div class="header">
-        <div class="brand">kloset<span>by</span>kiandka</div>
-        <div class="sub">Boutique · Mangalgiri</div>
-        <div class="sub" style="margin-top:.2rem;">📞 88011 51111 · @klosetbykiandka</div>
+    <div style="font-family:Georgia,serif;padding:1.5rem;color:#2c2420;max-width:580px;margin:0 auto;">
+      <div style="text-align:center;border-bottom:2px solid #c9a96e;padding-bottom:.8rem;margin-bottom:1.2rem;">
+        <div style="font-size:1.6rem;letter-spacing:.05em;">kloset<span style="color:#c9a96e;font-style:italic;">by</span>kiandka</div>
+        <div style="font-size:.7rem;color:#7a5f5a;letter-spacing:.2em;text-transform:uppercase;margin-top:.2rem;">Boutique · Mangalgiri</div>
+        <div style="font-size:.7rem;color:#7a5f5a;margin-top:.2rem;">📞 88011 51111 &nbsp;·&nbsp; @klosetbykiandka</div>
       </div>
-      <div class="cust-info">
-        <div class="cust-name">👤 ${c.name} <span style="font-size:.75rem;color:#7a5f5a;font-weight:normal;">(${c.gender})</span></div>
-        ${c.phone?`<div class="cust-detail">📞 ${c.phone}</div>`:''}
-        ${c.address?`<div class="cust-detail">📍 ${c.address}</div>`:''}
-        ${c.notes?`<div class="cust-detail" style="margin-top:.3rem;color:#c9a96e;">📝 ${c.notes}</div>`:''}
+      <div style="background:#fdf8f5;border-left:3px solid #c9a96e;padding:.7rem 1rem;margin-bottom:1rem;">
+        <div style="font-size:1.1rem;font-weight:bold;margin-bottom:.3rem;">${c.name} <span style="font-size:.75rem;color:#7a5f5a;font-weight:normal;">(${c.gender})</span></div>
+        ${c.phone?`<div style="font-size:.82rem;color:#7a5f5a;margin-bottom:.2rem;">📞 ${c.phone}</div>`:''}
+        ${c.address?`<div style="font-size:.8rem;color:#7a5f5a;margin-bottom:.2rem;">📍 ${c.address}</div>`:''}
+        ${c.notes?`<div style="font-size:.78rem;color:#c9a96e;font-style:italic;">📝 ${c.notes}</div>`:''}
       </div>
       ${Object.keys(meas).length?`
-        <div class="section-title">📏 Measurements</div>
-        <table>
-          <thead><tr>
-            <td>Measurement</td>
-            <td style="text-align:center;">Value</td>
-            <td>Notes</td>
-          </tr></thead>
-          <tbody>${measRows}</tbody>
-        </table>
-      `:'<p style="text-align:center;color:#7a5f5a;padding:2rem;">No measurements saved yet.</p>'}
-      <div class="footer">
+      <div style="background:#2c2420;color:#fff;padding:.35rem .7rem;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:0;">📏 Measurements</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;">
+        <thead><tr style="background:#f5ddd7;">
+          <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;">Measurement</td>
+          <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;text-align:center;">Inches</td>
+          <td style="padding:.35rem .6rem;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#7a5f5a;">Notes</td>
+        </tr></thead>
+        <tbody>${measRows}</tbody>
+      </table>`:'<p style="text-align:center;color:#7a5f5a;padding:1.5rem;">No measurements saved.</p>'}
+      <div style="text-align:center;margin-top:1rem;font-size:.68rem;color:#7a5f5a;border-top:1px solid #f5ddd7;padding-top:.8rem;">
         klosetbykiandka · Printed on ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
       </div>
-    </body></html>
+    </div>
   `;
-  const win = window.open('','_blank');
-  win.document.write(content);
-  win.document.close();
-  win.onload = () => { win.print(); };
-};
 
+  const printFrame = document.getElementById('print-frame') || (() => {
+    const f = document.createElement('iframe');
+    f.id = 'print-frame';
+    f.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;';
+    document.body.appendChild(f);
+    return f;
+  })();
+  printFrame.contentDocument.open();
+  printFrame.contentDocument.write('<html><head><style>@media print{body{margin:0;}}</style></head><body>'+content+'</body></html>');
+  printFrame.contentDocument.close();
+  setTimeout(()=>printFrame.contentWindow.print(), 500);
+};
 // ═══ INIT ═══
 document.getElementById('top-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
 
