@@ -32,12 +32,71 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 /* PAGES */
 .page{display:none;padding:1rem;max-width:600px;margin:0 auto;}
 .page.active{display:block;}
+
+/* Responsive breakpoints */
+/* Tablet (iPad) — 600px to 1024px */
+@media(min-width:600px){
+  .page{max-width:760px;padding:1.5rem;}
+  .tabs{max-width:760px;margin:0 auto;}
+  .topbar{padding:.9rem 1.5rem;}
+  .modal{max-width:560px;}
+  .stat-num{font-size:1.4rem;}
+}
+
+/* Laptop / Desktop — 1024px+ */
+@media(min-width:1024px){
+  .page{max-width:1100px;padding:2rem;}
+  .tabs{max-width:1100px;}
+  .topbar{padding:1rem 2rem;}
+  .modal{max-width:600px;}
+  /* Two column grid for dashboard */
+  #tab-dashboard .grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+  /* Orders/customers in 2 columns on laptop */
+  #orders-list,#customers-list{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+  /* Stats in 4 columns */
+  .stats{grid-template-columns:repeat(4,1fr)!important;}
+  /* Wider modals */
+  .modal{max-width:680px;}
+  /* Worker modal wider for compensation tab */
+  #add-worker-modal .modal{max-width:520px;}
+}
+
+/* Large Desktop — 1440px+ */
+@media(min-width:1440px){
+  .page{max-width:1280px;}
+  .tabs{max-width:1280px;}
+  #orders-list,#customers-list{grid-template-columns:1fr 1fr 1fr;}
+}
+
+/* Mobile portrait — under 480px */
+@media(max-width:480px){
+  .row2{grid-template-columns:1fr;}
+  .page{padding:.7rem;}
+  .topbar{padding:.6rem .8rem;}
+  .stat-num{font-size:1.1rem;}
+  .tab{padding:.6rem .7rem;font-size:.58rem;}
+  /* Make worker tabs stack */
+  #add-worker-modal .modal{max-width:100%;}
+  /* Smaller timesheet on mobile */
+  .ts-inp{font-size:.6rem!important;padding:.2rem!important;width:30px!important;}
+}
+.page.active{display:block;}
 /* CARDS */
 .card{background:var(--white);padding:1rem;margin-bottom:.8rem;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;}
 .sec-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;}
 /* BUTTONS */
-.btn{background:var(--dark);color:#fff;border:none;padding:.55rem 1rem;font-family:'Jost',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:1px;}
+.btn{background:var(--dark);color:#fff;border:none;padding:.55rem 1rem;font-family:'Jost',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:1px;min-height:36px;}
+/* Larger tap targets on mobile/touch devices */
+@media (pointer:coarse){
+  .btn{min-height:44px;padding:.7rem 1.1rem;}
+  .btn-sm{min-height:36px;}
+  .inp,.sel,.ta{min-height:42px;font-size:16px!important;} /* 16px prevents iOS zoom */
+  .tab{min-height:48px;}
+  .pill{min-height:32px;padding:.4rem .85rem;}
+  /* Modal close better tap area */
+  .modal-close{min-width:36px;min-height:36px;}
+}
 .btn:active{opacity:.8;}
 .btn-gold{background:var(--gold);}
 .btn-red{background:var(--red);}
@@ -92,7 +151,8 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 .gender-btn.f.active{background:var(--rose);color:#fff;}
 .gender-btn.m.active{background:var(--blue);color:#fff;}
 /* TIMESHEET */
-.ts-table{width:100%;border-collapse:collapse;font-size:.68rem;}
+.ts-table{width:100%;border-collapse:collapse;font-size:.68rem;min-width:780px;}
+@media(min-width:1024px){.ts-table{min-width:0;font-size:.72rem;}}
 .ts-th{padding:.4rem .3rem;text-align:center;font-weight:400;font-size:.57rem;background:var(--dark);color:#fff;}
 .ts-th.gold{background:var(--gold);color:var(--dark);}
 .ts-th.green{background:var(--green);color:#fff;}
@@ -787,7 +847,10 @@ window.viewWorker = function(id) {
   window.viewingWorkerId=id;
   document.getElementById('vw-name').textContent=w.name;
   const current=getWorkerRateForDate(w,tod());
-  const tots=window.DB.hours.filter(h=>h.wid===id).reduce((s,h)=>s+parseFloat(h.hours||0),0);
+  const allHrs = window.DB.hours.filter(h=>h.wid===id);
+  const totSTHrs = allHrs.reduce((s,h)=>s+parseFloat(h.st||h.hours||0),0);
+  const totOTHrs = allHrs.reduce((s,h)=>s+parseFloat(h.ot||0),0);
+  const totDays = Math.round((totSTHrs/8)*2)/2;
   const advGiven=(window.DB.advances||[]).filter(a=>a.wid===id&&a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
   const advRepaid=(window.DB.advances||[]).filter(a=>a.wid===id&&a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
   const outstanding=advGiven-advRepaid;
@@ -801,8 +864,9 @@ window.viewWorker = function(id) {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
       <div style="background:var(--light);padding:.6rem;text-align:center;">
-        <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);">Total Hours</div>
-        <div style="font-size:.9rem;font-weight:600;">${tots}h</div>
+        <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);">Days Worked</div>
+        <div style="font-size:.9rem;font-weight:600;">${totDays}d</div>
+        <div style="font-size:.55rem;color:var(--mid);">${totOTHrs>0?'+'+totOTHrs+'h OT':''}</div>
       </div>
       <div style="background:var(--light);padding:.6rem;text-align:center;">
         <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);">Day Rate</div>
@@ -1261,12 +1325,13 @@ function renderTimesheet() {
       </td>`;
     }).join('');
 
-    // Pay = (ST days × day rate) + (OT hrs × OT rate)
-    // 1 day = 8 ST hours
-    const stDays=totalST/8;
-    const stPay=stDays*dayRate;
-    const otPay=totalOT*otRate;
-    const totalPay=stPay+otPay;
+    // Pay = (full/half days × day rate) + (OT hrs × OT rate)
+    // 8 hrs = 1 full day, 4 hrs = 0.5 day
+    // Round to nearest 0.5
+    const stDays = Math.round((totalST/8)*2)/2;
+    const stPay = stDays*dayRate;
+    const otPay = totalOT*otRate;
+    const totalPay = stPay+otPay;
 
     const weekKey='wpaid_'+w.id+'_'+days[0];
     const paid=(window.DB.weekPaid||{})[weekKey]||0;
@@ -1307,10 +1372,15 @@ window.renderWorkers = function() {
   const sumEl=document.getElementById('workers-summary');
   if(!window.DB.workers.length){sumEl.innerHTML='<div class="empty"><div>No workers yet</div></div>';return;}
   sumEl.innerHTML=window.DB.workers.map(w=>{
-    const tot=window.DB.hours.filter(h=>h.wid===w.id).reduce((s,h)=>s+parseFloat(h.hours||0),0);
+    // Calculate ST and OT separately from all hours
+    const allHours = window.DB.hours.filter(h=>h.wid===w.id);
+    const totSTHrs = allHours.reduce((s,h)=>s+parseFloat(h.st||h.hours||0),0);
+    const totOTHrs = allHours.reduce((s,h)=>s+parseFloat(h.ot||0),0);
     const current=getWorkerRateForDate(w,tod());
     const dayRate=current?.dayRate||parseFloat(w.rate)||0;
-    const earn=dayRate?(tot*(dayRate/8)).toFixed(0):0;
+    const otRate=current?.otRate||0;
+    const totDays = Math.round((totSTHrs/8)*2)/2;
+    const earn = (totDays*dayRate)+(totOTHrs*otRate);
     const advGiven=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type==='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
     const advRepaid=(window.DB.advances||[]).filter(a=>a.wid===w.id&&a.type!=='advance').reduce((s,a)=>s+parseFloat(a.amount||0),0);
     const outstanding=advGiven-advRepaid;
@@ -1319,13 +1389,14 @@ window.renderWorkers = function() {
       <div>
         <div style="font-size:.78rem;font-weight:500;color:var(--gold);text-decoration:underline;">${w.name}</div>
         <div style="font-size:.62rem;color:var(--mid);">${w.role}${w.phone?' · 📞 '+w.phone:''}</div>
-        ${current?.otRate?`<div style="font-size:.6rem;color:var(--mid);">OT: ₹${current.otRate}/hr</div>`:''}
+        <div style="font-size:.6rem;color:var(--mid);">₹${dayRate}/day${otRate?' · OT:₹'+otRate+'/hr':''}</div>
         ${outstanding>0?`<div style="font-size:.62rem;color:var(--red);">Advance due: ₹${outstanding.toLocaleString()}</div>`:''}
       </div>
       <div style="text-align:right;">
-        <div style="font-size:.75rem;font-weight:500;">${tot}h · ${dayRate?'₹'+parseInt(earn).toLocaleString():'-'}</div>
-        ${outstanding>0?`<div style="font-size:.68rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
-        <div style="font-size:.6rem;color:var(--gold);margin-top:.2rem;">Tap to view profile →</div>
+        <div style="font-size:.75rem;font-weight:500;">${totDays}d ${totOTHrs>0?'+ '+totOTHrs+'OT h':''}</div>
+        <div style="font-size:.72rem;color:var(--gold);font-weight:600;">${dayRate?'₹'+Math.round(earn).toLocaleString():'-'}</div>
+        ${outstanding>0?`<div style="font-size:.65rem;color:var(--green);">Net: ₹${Math.max(0,netPay).toLocaleString()}</div>`:''}
+        <div style="font-size:.58rem;color:var(--gold);margin-top:.2rem;">Tap to view →</div>
       </div>
     </div>`;
   }).join('');
