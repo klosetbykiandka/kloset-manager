@@ -123,8 +123,13 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 
 <div class="topbar">
   <div class="brand">kloset<span>by</span>kiandka</div>
-  <div style="display:flex;align-items:center;gap:.8rem;">
+  <div style="display:flex;align-items:center;gap:.6rem;">
     <span id="save-status" class="save-status"></span>
+    <div style="display:flex;border:1px solid rgba(255,255,255,.2);border-radius:20px;overflow:hidden;">
+      <button onclick="setLang('en')" id="lang-en" style="padding:.25rem .5rem;font-size:.58rem;background:rgba(201,169,110,.8);color:#fff;border:none;cursor:pointer;font-family:'Jost',sans-serif;">EN</button>
+      <button onclick="setLang('hi')" id="lang-hi" style="padding:.25rem .5rem;font-size:.58rem;background:none;color:rgba(255,255,255,.6);border:none;cursor:pointer;font-family:'Jost',sans-serif;">हिं</button>
+      <button onclick="setLang('te')" id="lang-te" style="padding:.25rem .5rem;font-size:.58rem;background:none;color:rgba(255,255,255,.6);border:none;cursor:pointer;font-family:'Jost',sans-serif;">తె</button>
+    </div>
     <span style="font-size:.6rem;color:rgba(255,255,255,.35);" id="top-date"></span>
   </div>
 </div>
@@ -265,7 +270,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 <!-- ADD ORDER -->
 <div class="modal-bg" id="add-order-modal">
   <div class="modal">
-    <div class="modal-head"><div class="modal-title">New Order</div><button class="modal-close" onclick="closeModal('add-order-modal')">×</button></div>
+    <div class="modal-head"><div class="modal-title" id="o-modal-title">New Order</div><button class="modal-close" onclick="closeModal('add-order-modal')">×</button></div>
     <div class="modal-body">
       <div class="field"><label class="label">Customer *</label>
         <select class="sel" id="o-cust" onchange="autoFillPhone()"><option value="">-- Select Customer --</option></select>
@@ -292,7 +297,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('add-order-modal')">Cancel</button>
-      <button class="btn" onclick="saveOrder()">Save Order</button>
+      <button class="btn" id="o-save-btn" onclick="saveOrder()">Save Order</button>
     </div>
   </div>
 </div>
@@ -302,7 +307,10 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
   <div class="modal">
     <div class="modal-head"><div class="modal-title" id="vo-title">Order</div><button class="modal-close" onclick="closeModal('view-order-modal')">×</button></div>
     <div class="modal-body" id="vo-body"></div>
-    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal('view-order-modal')">Close</button></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('view-order-modal')" id="vo-close-btn">Close</button>
+      <button class="btn" onclick="editCurrentOrder()" id="vo-edit-btn">✏️ Edit</button>
+    </div>
   </div>
 </div>
 
@@ -487,11 +495,37 @@ async function loadAllData() {
   } catch(e) { console.error('Load error:', e); }
 }
 
+window.editingOrderId = null;
+
+window.editCurrentOrder = function() {
+  const id = window.viewingOrderId;
+  if(!id) return;
+  const o = window.DB.orders.find(x=>x.id===id);
+  if(!o) return;
+  window.editingOrderId = id;
+  // Populate form
+  const sel = document.getElementById('o-cust');
+  sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
+  sel.value = o.customer||'';
+  document.getElementById('o-phone').value = o.phone||'';
+  document.getElementById('o-date').value = o.date||tod();
+  document.getElementById('o-outfit').value = o.outfit||'';
+  document.getElementById('o-amount').value = o.amount||'';
+  document.getElementById('o-advance').value = o.advance||'';
+  document.getElementById('o-delivery').value = o.delivery||'';
+  document.getElementById('o-status').value = o.status||'Pending';
+  document.getElementById('o-notes').value = o.notes||'';
+  document.getElementById('o-modal-title').textContent = 'Edit Order';
+  document.getElementById('o-save-btn').textContent = '💾 Save Changes';
+  closeModal('view-order-modal');
+  openModal('add-order-modal');
+};
+
 window.saveOrder = async function() {
   const custName = document.getElementById('o-cust').value;
   const outfit = document.getElementById('o-outfit').value.trim();
   if(!custName || !outfit) { alert('Please select customer and enter outfit'); return; }
-  const order = {
+  const orderData = {
     customer: custName,
     phone: document.getElementById('o-phone').value,
     date: document.getElementById('o-date').value,
@@ -501,16 +535,35 @@ window.saveOrder = async function() {
     delivery: document.getElementById('o-delivery').value,
     status: document.getElementById('o-status').value,
     notes: document.getElementById('o-notes').value,
-    createdAt: new Date().toISOString()
   };
-  const docRef = await addDoc(collection(db, 'orders'), order);
-  order.id = docRef.id;
-  window.DB.orders.unshift(order);
-  const act = addAct('New order: '+outfit+' for '+custName);
-  await addDoc(collection(db, 'activity'), act);
-  window.DB.activity.unshift(act);
-  closeModal('add-order-modal');
-  renderOrders(); updateDash(); showSave();
+  const editId = window.editingOrderId;
+  if(editId) {
+    // Update existing order
+    await updateDoc(doc(db,'orders',editId), {...orderData, updatedAt: new Date().toISOString()});
+    const idx = window.DB.orders.findIndex(o=>o.id===editId);
+    if(idx>-1) window.DB.orders[idx] = {...window.DB.orders[idx], ...orderData};
+    const act = addAct('Updated order: '+outfit+' for '+custName);
+    await addDoc(collection(db,'activity'), act);
+    window.DB.activity.unshift(act);
+    window.editingOrderId = null;
+    closeModal('add-order-modal');
+    document.getElementById('o-modal-title').textContent = 'New Order';
+    document.getElementById('o-save-btn').textContent = 'Save Order';
+    renderOrders(); updateDash(); showSave();
+    // Reopen view modal with updated data
+    setTimeout(()=>viewOrder(editId), 150);
+  } else {
+    // New order
+    const order = {...orderData, createdAt: new Date().toISOString()};
+    const docRef = await addDoc(collection(db, 'orders'), order);
+    order.id = docRef.id;
+    window.DB.orders.unshift(order);
+    const act = addAct('New order: '+outfit+' for '+custName);
+    await addDoc(collection(db, 'activity'), act);
+    window.DB.activity.unshift(act);
+    closeModal('add-order-modal');
+    renderOrders(); updateDash(); showSave();
+  }
 };
 
 window.saveCustomer = async function() {
@@ -747,67 +800,71 @@ window.setCFilter = function(f, el) {
 
 window.renderOrders = function() {
   const q = (document.getElementById('order-search')?.value||'').toLowerCase();
+  document.getElementById('order-search').placeholder = T().search;
   const orders = window.DB.orders.filter(o=>{
     const m = o.customer?.toLowerCase().includes(q)||o.outfit?.toLowerCase().includes(q);
     return window.oFilter==='all'?m:m&&o.status===window.oFilter;
   });
   const el = document.getElementById('orders-list');
-  if(!orders.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>No orders found</div></div>'; return; }
+  if(!orders.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div>'+T().noOrders+'</div></div>'; return; }
   el.innerHTML = orders.map(o=>{
     const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
+    const statusLabel = T()[o.status.toLowerCase()]||o.status;
     return `<div class="order-card" onclick="viewOrder('${o.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;">
         <div><div style="font-weight:500;font-size:.88rem;">${o.outfit||''}</div>
         <div style="font-size:.7rem;color:var(--mid);">👤 ${o.customer||''}${o.phone?' · 📞 '+o.phone:''}</div></div>
-        <span class="badge ${bClass(o.status)}">${o.status}</span>
+        <span class="badge ${bClass(o.status)}">${statusLabel}</span>
       </div>
       <div style="display:flex;gap:.7rem;font-size:.68rem;color:var(--mid);flex-wrap:wrap;">
         ${o.amount?`<span>₹${parseInt(o.amount).toLocaleString()}</span>`:''}
-        ${o.advance?`<span style="color:var(--green)">✅ ₹${parseInt(o.advance).toLocaleString()} paid</span>`:''}
-        ${bal>0&&o.amount?`<span style="color:var(--red)">⚠️ ₹${bal.toLocaleString()} due</span>`:''}
-        ${o.delivery&&o.status!=='Delivered'?`<span style="color:var(--blue)">Due: ${fmtD(o.delivery)}</span>`:''}
-        ${o.delivery&&o.status!=='Delivered'&&o.delivery<new Date().toISOString().split('T')[0]?`<span style="color:var(--red);font-weight:500;">⚠️ Overdue!</span>`:''}
+        ${o.advance?`<span style="color:var(--green)">✅ ₹${parseInt(o.advance).toLocaleString()} ${T().advancePaid}</span>`:''}
+        ${bal>0&&o.amount?`<span style="color:var(--red)">⚠️ ₹${bal.toLocaleString()} ${T().balance}</span>`:''}
+        ${o.delivery&&o.status!=='Delivered'?`<span style="color:var(--blue)">${T().deliverBy}: ${fmtD(o.delivery)}</span>`:''}
+        ${o.delivery&&o.status!=='Delivered'&&o.delivery<tod()?`<span style="color:var(--red);font-weight:500;">⚠️ Overdue!</span>`:''}
         ${o.deliveredOn&&o.status==='Delivered'?`<span style="color:var(--green)">✅ ${fmtD(o.deliveredOn)}</span>`:''}
       </div>
-      <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">Tap to view →</div>
+      <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">${T().tapView}</div>
     </div>`;
   }).join('');
 };
 
 window.viewOrder = function(id) {
+  window.viewingOrderId = id;
   const o = window.DB.orders.find(x=>x.id===id);
   if(!o) return;
   const bal=(parseFloat(o.amount)||0)-(parseFloat(o.advance)||0);
-  document.getElementById('vo-title').textContent = o.outfit||'Order';
+  const statusLabel = T()[o.status.toLowerCase()]||o.status;
+  document.getElementById('vo-title').textContent = o.outfit||T().orders;
   document.getElementById('vo-body').innerHTML = `
     <div style="background:var(--light);padding:.8rem;border-left:3px solid var(--gold);margin-bottom:.8rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
         <span style="font-size:.8rem;font-weight:500;">👤 ${o.customer||''}</span>
-        <span class="badge ${bClass(o.status)}">${o.status}</span>
+        <span class="badge ${bClass(o.status)}">${statusLabel}</span>
       </div>
       ${o.phone?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📞 ${o.phone}</div>`:''}
-      ${o.date?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📅 Order: ${fmtD(o.date)}</div>`:''}
-      ${o.delivery&&o.status!=='Delivered'?`<div style="font-size:.72rem;color:var(--blue);margin-bottom:.2rem;">🗓 Deliver By: <strong>${fmtD(o.delivery)}</strong></div>`:''}
-      ${o.deliveredOn&&o.status==='Delivered'?`<div style="font-size:.72rem;color:var(--green);">✅ Delivered On: <strong>${fmtD(o.deliveredOn)}</strong></div>`:''}
+      ${o.date?`<div style="font-size:.72rem;color:var(--mid);margin-bottom:.2rem;">📅 ${T().orderDate}: ${fmtD(o.date)}</div>`:''}
+      ${o.delivery&&o.status!=='Delivered'?`<div style="font-size:.72rem;color:var(--blue);margin-bottom:.2rem;">🗓 ${T().deliverBy}: <strong>${fmtD(o.delivery)}</strong></div>`:''}
+      ${o.deliveredOn&&o.status==='Delivered'?`<div style="font-size:.72rem;color:var(--green);">✅ ${T().deliveredOn}: <strong>${fmtD(o.deliveredOn)}</strong></div>`:''}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.8rem;">
-      ${[['Total',o.amount?'₹'+parseInt(o.amount).toLocaleString():'-','var(--dark)'],['Advance',o.advance?'₹'+parseInt(o.advance).toLocaleString():'-','var(--green)'],['Balance',bal>0?'₹'+bal.toLocaleString():'Paid ✅',bal>0?'var(--red)':'var(--green)']].map(([l,v,c])=>`
+      ${[[T().total,o.amount?'₹'+parseInt(o.amount).toLocaleString():'-','var(--dark)'],[T().advancePaid,o.advance?'₹'+parseInt(o.advance).toLocaleString():'-','var(--green)'],[T().balance,bal>0?'₹'+bal.toLocaleString():T().paid,bal>0?'var(--red)':'var(--green)']].map(([l,v,c])=>`
       <div style="background:var(--light);padding:.6rem;text-align:center;">
         <div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:.2rem;">${l}</div>
         <div style="font-size:.88rem;font-weight:500;color:${c};">${v}</div>
       </div>`).join('')}
     </div>
     ${bal>0?`<div style="background:#fff3e0;border:1px solid #ffcc80;padding:.6rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:.72rem;color:#e65100;">⚠️ Balance: ₹${bal.toLocaleString()}</span>
-      <button class="btn btn-sm btn-red" onclick="markBalancePaid('${o.id}')">Mark Paid</button>
+      <span style="font-size:.72rem;color:#e65100;">⚠️ ${T().balance}: ₹${bal.toLocaleString()}</span>
+      <button class="btn btn-sm btn-red" onclick="markBalancePaid('${o.id}')">${T().markPaid}</button>
     </div>`:''}
     ${o.notes?`<div style="background:#fffdf8;border:1px solid #f0e8d0;padding:.7rem;font-size:.73rem;color:var(--mid);margin-bottom:.8rem;">📝 ${o.notes}</div>`:''}
-    <div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.5rem;">Update Status</div>
+    <div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.5rem;">${T().updateStatus}</div>
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem;">
-      ${STATUSES.map(s=>`<button class="btn btn-sm ${s===o.status?'btn-gold':'btn-outline'}" onclick="updOrderStatus('${o.id}','${s}')">${s}</button>`).join('')}
+      ${STATUSES.map(s=>`<button class="btn btn-sm ${s===o.status?'btn-gold':'btn-outline'}" onclick="updOrderStatus('${o.id}','${s}')">${T()[s.toLowerCase()]||s}</button>`).join('')}
     </div>
-    <button class="btn btn-sm btn-red" onclick="showDeleteOrder('${o.id}')">Delete Order</button>
-    <button class="btn btn-sm btn-outline" style="margin-left:.4rem;" onclick="printOrder('${o.id}')">🖨️ Print</button>
+    <button class="btn btn-sm btn-red" onclick="showDeleteOrder('${o.id}')">${T().deleteOrder}</button>
+    <button class="btn btn-sm btn-outline" style="margin-left:.4rem;" onclick="printOrder('${o.id}')">${T().print}</button>
   `;
   openModal('view-order-modal');
 };
@@ -1032,10 +1089,22 @@ window.updateDash = function() {
   document.getElementById('s-custs').textContent=window.DB.customers.length;
   document.getElementById('s-stitch').textContent=window.DB.orders.filter(o=>o.status==='Stitching').length;
   document.getElementById('s-ready').textContent=window.DB.orders.filter(o=>o.status==='Ready').length;
+  // Update stat labels
+  const labels = document.querySelectorAll('.stat-label');
+  if(labels[0]) labels[0].textContent=T().pendingOrders;
+  if(labels[1]) labels[1].textContent=T().customers;
+  if(labels[2]) labels[2].textContent=T().inStitching;
+  if(labels[3]) labels[3].textContent=T().ready;
   const actEl=document.getElementById('activity-list');
   actEl.innerHTML=window.DB.activity.length
     ? window.DB.activity.slice(0,8).map(a=>`<div class="act-item"><div class="act-dot"></div><div><div class="act-text">${a.t}</div><div class="act-time">${a.ts}</div></div></div>`).join('')
-    : '<div class="empty"><div class="empty-icon">✨</div><div>Activity appears here</div></div>';
+    : '<div class="empty"><div class="empty-icon">✨</div><div>'+T().recentActivity+'</div></div>';
+  // Update section title
+  const secTitle = document.querySelector('#tab-dashboard .sec-title');
+  if(secTitle) secTitle.textContent = T().recentActivity;
+  // Update new order button
+  const newOrderBtn = document.querySelector('#tab-orders .btn');
+  if(newOrderBtn) newOrderBtn.textContent = T().newOrder;
 };
 
 // ═══ CUSTOMER MEASUREMENTS ═══
@@ -1106,6 +1175,9 @@ window.initCustForm = function() {
 };
 
 window.initOrderForm = function() {
+  window.editingOrderId = null;
+  document.getElementById('o-modal-title').textContent = 'New Order';
+  document.getElementById('o-save-btn').textContent = 'Save Order';
   const sel=document.getElementById('o-cust');
   sel.innerHTML='<option value="">-- Select Customer --</option>'+window.DB.customers.map(c=>`<option value="${c.name}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('');
   const todayVal = new Date().toISOString().split('T')[0];
@@ -1201,7 +1273,10 @@ window.printOrder = function(id) {
           <span style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;">Deliver By</span>
           <span style="font-size:.85rem;font-weight:600;color:#c9a96e;">${fmtD(o.delivery)}</span>
         </div>`:''}
-        ${o.notes?`<div style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid #f5ddd7;font-size:.78rem;color:#7a5f5a;">📝 ${o.notes}</div>`:''}
+        ${o.notes?`<div style="margin-top:.5rem;padding-top:.4rem;border-top:1px solid #f5ddd7;">
+          <div style="font-size:.65rem;color:#7a5f5a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.2rem;">Notes / Instructions</div>
+          <div style="font-size:.83rem;color:#2c2420;font-style:italic;">${o.notes}</div>
+        </div>`:''}
       </div>
       ${Object.keys(meas).length?`
       <div style="margin-bottom:1rem;">
@@ -1290,12 +1365,142 @@ window.printMeasurements = function(id) {
   printFrame.contentDocument.close();
   setTimeout(()=>printFrame.contentWindow.print(), 500);
 };
+// ═══ LANGUAGE / TRANSLATIONS ═══
+const LANGS = {
+  en: {
+    dashboard:'Dashboard', orders:'Orders', customers:'Customers', workers:'Workers', archive:'Archive',
+    newOrder:'+ New Order', newCustomer:'+ Add Customer', newWorker:'+ Add Worker',
+    pending:'Pending', confirmed:'Confirmed', stitching:'Stitching', alteration:'Alteration', ready:'Ready', delivered:'Delivered',
+    search:'Search customer or outfit...', searchCust:'Search by name or phone...',
+    customer:'Customer', phone:'Phone', orderDate:'Order Date', outfit:'Outfit',
+    amount:'Amount (₹)', advance:'Advance (₹)', deliveryDate:'Delivery Date', status:'Status', notes:'Notes',
+    saveOrder:'Save Order', saveCustomer:'Save Customer', saveWorker:'Save Worker',
+    cancel:'Cancel', close:'Close', print:'🖨️ Print', edit:'✏️ Edit',
+    total:'Total', advancePaid:'Advance', balance:'Balance', paid:'Paid ✅',
+    updateStatus:'Update Status', deleteOrder:'Delete Order', markPaid:'Mark Paid',
+    deliverBy:'Deliver By', deliveredOn:'Delivered On', orderSlip:'Order Slip',
+    measurements:'Measurements', gender:'Gender', female:'Female', male:'Male',
+    address:'Address', email:'Email', name:'Full Name',
+    all:'All', pendingOrders:'Pending Orders', inStitching:'In Stitching',
+    recentActivity:'Recent Activity', noOrders:'No orders found', noCustomers:'No customers yet',
+    workerName:'Worker Name', role:'Role', dailyRate:'Daily Rate (₹)',
+    weeklyTimesheet:'Weekly Timesheet', workersSummary:'Workers Summary', advances:'Advances',
+    addAdvance:'+ Add Advance', advanceGiven:'Advance Given', advanceRepaid:'Advance Repaid',
+    deductedSalary:'Deducted from Salary', reason:'Reason *', archiveMsg:'Order will be moved to Archive.',
+    restore:'↩ Restore', removeForever:'Remove Forever', clearAll:'Clear All',
+    noArchive:'No archived orders.\nDeleted orders appear here.',
+    tapView:'Tap to view →', saveWeek:'💾 Save Week', tabOut:'Tab out of cell to save',
+    workerHrs:'Hrs', workerPay:'Pay', workerPaid:'Paid', workerBal:'Balance',
+    thankYou:'Thank you for choosing klosetbykiandka! 🌸',
+    noMeas:'No measurements saved yet.',
+    custSig:'Customer Signature', storeSig:'Store Signature',
+  },
+  hi: {
+    dashboard:'डैशबोर्ड', orders:'ऑर्डर', customers:'ग्राहक', workers:'कारीगर', archive:'आर्काइव',
+    newOrder:'+ नया ऑर्डर', newCustomer:'+ ग्राहक जोड़ें', newWorker:'+ कारीगर जोड़ें',
+    pending:'लंबित', confirmed:'पक्का', stitching:'सिलाई', alteration:'बदलाव', ready:'तैयार', delivered:'डिलीवर',
+    search:'ग्राहक या पोशाक खोजें...', searchCust:'नाम या फोन से खोजें...',
+    customer:'ग्राहक', phone:'फोन', orderDate:'ऑर्डर दिनांक', outfit:'पोशाक',
+    amount:'राशि (₹)', advance:'अग्रिम (₹)', deliveryDate:'डिलीवरी दिनांक', status:'स्थिति', notes:'नोट्स',
+    saveOrder:'ऑर्डर सेव करें', saveCustomer:'ग्राहक सेव करें', saveWorker:'कारीगर सेव करें',
+    cancel:'रद्द करें', close:'बंद करें', print:'🖨️ प्रिंट', edit:'✏️ संपादित',
+    total:'कुल', advancePaid:'अग्रिम', balance:'बकाया', paid:'भुगतान ✅',
+    updateStatus:'स्थिति अपडेट', deleteOrder:'ऑर्डर हटाएं', markPaid:'भुगतान करें',
+    deliverBy:'डिलीवरी तक', deliveredOn:'डिलीवर किया', orderSlip:'ऑर्डर स्लिप',
+    measurements:'माप', gender:'लिंग', female:'महिला', male:'पुरुष',
+    address:'पता', email:'ईमेल', name:'पूरा नाम',
+    all:'सभी', pendingOrders:'लंबित ऑर्डर', inStitching:'सिलाई में',
+    recentActivity:'हाल की गतिविधि', noOrders:'कोई ऑर्डर नहीं', noCustomers:'अभी कोई ग्राहक नहीं',
+    workerName:'कारीगर का नाम', role:'भूमिका', dailyRate:'दैनिक दर (₹)',
+    weeklyTimesheet:'साप्ताहिक टाइमशीट', workersSummary:'कारीगर सारांश', advances:'अग्रिम',
+    addAdvance:'+ अग्रिम जोड़ें', advanceGiven:'अग्रिम दिया', advanceRepaid:'अग्रिम वापस',
+    deductedSalary:'वेतन से कटौती', reason:'कारण *', archiveMsg:'ऑर्डर आर्काइव में जाएगा।',
+    restore:'↩ वापस लाएं', removeForever:'हमेशा के लिए हटाएं', clearAll:'सब साफ करें',
+    noArchive:'कोई आर्काइव नहीं।\nहटाए गए ऑर्डर यहाँ दिखेंगे।',
+    tapView:'देखने के लिए टैप करें →', saveWeek:'💾 सप्ताह सेव करें', tabOut:'सेव के लिए सेल से बाहर जाएं',
+    workerHrs:'घंटे', workerPay:'भुगतान', workerPaid:'दिया', workerBal:'बकाया',
+    thankYou:'klosetbykiandka चुनने के लिए धन्यवाद! 🌸',
+    noMeas:'अभी कोई माप नहीं।',
+    custSig:'ग्राहक हस्ताक्षर', storeSig:'दुकान हस्ताक्षर',
+  },
+  te: {
+    dashboard:'డాష్‌బోర్డ్', orders:'ఆర్డర్లు', customers:'కస్టమర్లు', workers:'కార్మికులు', archive:'ఆర్కైవ్',
+    newOrder:'+ కొత్త ఆర్డర్', newCustomer:'+ కస్టమర్ జోడించు', newWorker:'+ కార్మికుడు జోడించు',
+    pending:'పెండింగ్', confirmed:'నిర్ధారించబడింది', stitching:'కుట్టుపని', alteration:'మార్పు', ready:'సిద్ధంగా ఉంది', delivered:'డెలివరీ అయింది',
+    search:'కస్టమర్ లేదా దుస్తులు వెతకండి...', searchCust:'పేరు లేదా ఫోన్ వెతకండి...',
+    customer:'కస్టమర్', phone:'ఫోన్', orderDate:'ఆర్డర్ తేదీ', outfit:'దుస్తులు',
+    amount:'మొత్తం (₹)', advance:'అడ్వాన్స్ (₹)', deliveryDate:'డెలివరీ తేదీ', status:'స్థితి', notes:'గమనికలు',
+    saveOrder:'ఆర్డర్ సేవ్ చేయి', saveCustomer:'కస్టమర్ సేవ్ చేయి', saveWorker:'కార్మికుడు సేవ్ చేయి',
+    cancel:'రద్దు చేయి', close:'మూసివేయి', print:'🖨️ ప్రింట్', edit:'✏️ సవరించు',
+    total:'మొత్తం', advancePaid:'అడ్వాన్స్', balance:'బాకీ', paid:'చెల్లించారు ✅',
+    updateStatus:'స్థితి నవీకరించు', deleteOrder:'ఆర్డర్ తొలగించు', markPaid:'చెల్లించినట్టు గుర్తించు',
+    deliverBy:'డెలివరీ వరకు', deliveredOn:'డెలివరీ అయింది', orderSlip:'ఆర్డర్ స్లిప్',
+    measurements:'కొలతలు', gender:'లింగం', female:'స్త్రీ', male:'పురుషుడు',
+    address:'చిరునామా', email:'ఇమెయిల్', name:'పూర్తి పేరు',
+    all:'అన్నీ', pendingOrders:'పెండింగ్ ఆర్డర్లు', inStitching:'కుట్టుపనిలో',
+    recentActivity:'ఇటీవలి కార్యకలాపాలు', noOrders:'ఆర్డర్లు కనుగొనబడలేదు', noCustomers:'కస్టమర్లు లేరు',
+    workerName:'కార్మికుని పేరు', role:'పాత్ర', dailyRate:'రోజువారీ రేటు (₹)',
+    weeklyTimesheet:'వారపు టైమ్‌షీట్', workersSummary:'కార్మికుల సారాంశం', advances:'అడ్వాన్సులు',
+    addAdvance:'+ అడ్వాన్స్ జోడించు', advanceGiven:'అడ్వాన్స్ ఇచ్చారు', advanceRepaid:'అడ్వాన్స్ తిరిగి ఇచ్చారు',
+    deductedSalary:'జీతం నుండి తీసివేశారు', reason:'కారణం *', archiveMsg:'ఆర్డర్ ఆర్కైవ్‌కు తరలించబడుతుంది.',
+    restore:'↩ పునరుద్ధరించు', removeForever:'శాశ్వతంగా తొలగించు', clearAll:'అన్నీ తొలగించు',
+    noArchive:'ఆర్కైవ్ ఆర్డర్లు లేవు.\nతొలగించిన ఆర్డర్లు ఇక్కడ కనిపిస్తాయి.',
+    tapView:'చూడటానికి నొక్కండి →', saveWeek:'💾 వారం సేవ్ చేయి', tabOut:'సేవ్ చేయడానికి సెల్ నుండి నిష్క్రమించండి',
+    workerHrs:'గంటలు', workerPay:'చెల్లింపు', workerPaid:'చెల్లించారు', workerBal:'బాకీ',
+    thankYou:'klosetbykiandka ఎంచుకున్నందుకు ధన్యవాదాలు! 🌸',
+    noMeas:'కొలతలు సేవ్ చేయబడలేదు.',
+    custSig:'కస్టమర్ సంతకం', storeSig:'స్టోర్ సంతకం',
+  }
+};
+
+let currentLang = 'en';
+const T = () => LANGS[currentLang];
+
+window.setLang = function(lang) {
+  currentLang = lang;
+  // Update lang buttons
+  ['en','hi','te'].forEach(l => {
+    const btn = document.getElementById('lang-'+l);
+    if(btn){
+      btn.style.background = l===lang?'rgba(201,169,110,.8)':'none';
+      btn.style.color = l===lang?'#fff':'rgba(255,255,255,.6)';
+    }
+  });
+  // Update tabs
+  const tabLabels = ['dashboard','orders','customers','workers','archive'];
+  const tabKeys = ['dashboard','orders','customers','workers','archive'];
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const icons = ['📊','📋','👗','⏰','🗄'];
+    t.textContent = icons[i]+' '+T()[tabKeys[i]];
+  });
+  // Update save week button
+  const swb = document.getElementById('save-ts-btn');
+  if(swb) swb.textContent = T().saveWeek;
+  // Re-render current page
+  const activePage = document.querySelector('.page.active');
+  if(activePage){
+    const id = activePage.id.replace('tab-','');
+    if(id==='dashboard') updateDash();
+    if(id==='orders') renderOrders();
+    if(id==='customers') renderCustomers();
+    if(id==='workers') renderWorkers();
+    if(id==='archive') renderArchive();
+  }
+  // Save preference
+  localStorage.setItem('kk_lang', lang);
+};
+
 // ═══ INIT ═══
 document.getElementById('top-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
 
 await loadAllData();
 document.getElementById('loading').style.display='none';
 document.getElementById('app').style.display='block';
+
+// Load saved language
+const savedLang = localStorage.getItem('kk_lang')||'en';
+setLang(savedLang);
+
 updateDash();
 renderOrders();
 
