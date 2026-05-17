@@ -104,9 +104,10 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 .btn-outline{background:none;border:1px solid var(--gold);color:var(--gold);}
 .btn-sm{padding:.35rem .7rem;font-size:.58rem;}
 /* FORMS */
-.field{margin-bottom:.8rem;}
-.label{display:block;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.3rem;}
-.inp,.sel,.ta{width:100%;border:1px solid var(--rose);padding:.55rem .7rem;font-family:'Jost',sans-serif;font-size:.8rem;color:var(--dark);background:var(--light);border-radius:1px;outline:none;}
+.field{margin-bottom:.9rem;}
+.label{display:block;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-bottom:.35rem;font-weight:500;}
+.inp,.sel,.ta{width:100%;border:1px solid var(--rose);padding:.65rem .8rem;font-family:'Jost',sans-serif;font-size:.85rem;color:var(--dark);background:var(--light);border-radius:3px;outline:none;transition:border-color .2s,background .2s;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);background:#fff;}
 .ta{min-height:60px;resize:vertical;}
 .inp:focus,.sel:focus,.ta:focus{border-color:var(--gold);}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
@@ -120,7 +121,7 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(44,36,32,.65);z-index:200;overflow-y:auto;padding:1rem;}
 .modal-bg.open{display:flex;align-items:flex-start;justify-content:center;}
-.modal{background:var(--white);width:100%;max-width:480px;margin:auto;border-radius:2px;}
+.modal{background:var(--white);width:100%;max-width:520px;margin:auto;border-radius:3px;}
 @media(min-width:600px){.modal{max-width:520px;}}
 .modal-head{padding:.9rem 1.1rem;border-bottom:1px solid var(--blush);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;}
@@ -355,31 +356,31 @@ body{font-family:'Jost',sans-serif;background:var(--light);color:var(--dark);min
   <div class="modal">
     <div class="modal-head"><div class="modal-title" id="o-modal-title">New Order</div><button class="modal-close" onclick="closeModal('add-order-modal')">×</button></div>
     <div class="modal-body">
-      <div class="field"><label class="label">Customer *</label>
-        <select class="sel" id="o-cust" onchange="autoFillPhone()"><option value="">-- Select Customer --</option></select>
-        <div style="font-size:.6rem;color:var(--gold);margin-top:.3rem;">No customer? <span onclick="closeModal('add-order-modal');openModal('add-cust-modal');initCustForm()" style="text-decoration:underline;cursor:pointer;">Add first →</span></div>
-      </div>
       <div class="row2">
-        <div class="field"><label class="label">Phone</label><input class="inp" id="o-phone" type="tel" maxlength="10" placeholder="9876543210"/></div>
+        <div class="field"><label class="label">Customer *</label>
+          <select class="sel" id="o-cust" onchange="autoFillPhone()"><option value="">-- Select Customer --</option></select>
+        </div>
         <div class="field"><label class="label">Order Date</label><input class="inp" id="o-date" type="date"/></div>
       </div>
+      <div style="font-size:.62rem;color:var(--gold);margin-bottom:.7rem;margin-top:-.3rem;">No customer? <span onclick="closeModal('add-order-modal');openModal('add-cust-modal');initCustForm()" style="text-decoration:underline;cursor:pointer;">Add first →</span></div>
+      <input type="hidden" id="o-phone"/>
 
       <!-- OUTFITS LIST -->
-      <div style="background:var(--light);border:1px solid var(--blush);padding:.7rem;margin-bottom:.8rem;border-radius:2px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
-          <label class="label" style="margin:0;">👗 Outfits *</label>
-          <button type="button" class="btn btn-sm" onclick="addOutfitRow()" style="padding:.3rem .6rem;font-size:.6rem;">+ Add Outfit</button>
+      <div style="background:var(--light);border:1px solid var(--blush);padding:.8rem;margin-bottom:.9rem;border-radius:3px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
+          <label class="label" style="margin:0;font-size:.7rem;">👗 Outfits *</label>
+          <button type="button" class="btn btn-sm" onclick="addOutfitRow()" style="padding:.35rem .7rem;font-size:.6rem;">+ Add Outfit</button>
         </div>
         <div id="outfits-list"></div>
-        <div style="display:flex;justify-content:space-between;padding-top:.5rem;margin-top:.5rem;border-top:1px solid var(--rose);font-size:.8rem;font-weight:600;">
-          <span>Total Amount:</span>
-          <span id="outfits-total" style="color:var(--gold);">₹0</span>
+        <div style="display:flex;justify-content:space-between;padding-top:.6rem;margin-top:.4rem;border-top:1px solid var(--rose);">
+          <span style="font-size:.78rem;font-weight:600;color:var(--dark);">Total Amount</span>
+          <span id="outfits-total" style="font-size:.95rem;font-weight:600;color:var(--gold);">₹0</span>
         </div>
       </div>
 
       <div class="row2">
         <div class="field"><label class="label">Advance Paid (₹)</label><input class="inp" id="o-advance" type="number" placeholder="5000" oninput="updateOrderTotals()"/></div>
-        <div class="field"><label class="label">Balance Due</label><input class="inp" id="o-balance" type="text" readonly style="background:var(--light);color:var(--mid);"/></div>
+        <div class="field"><label class="label">Balance Due</label><input class="inp" id="o-balance" type="text" readonly style="background:var(--light);font-weight:600;"/></div>
       </div>
       <div class="row2">
         <div class="field"><label class="label">Delivery Date</label><input class="inp" id="o-delivery" type="date"/></div>
@@ -641,16 +642,27 @@ async function loadAllData() {
 // ═══ OUTFITS MANAGEMENT ═══
 window.addOutfitRow = function(outfit='', amount='') {
   const list = document.getElementById('outfits-list');
-  const idx = list.children.length;
   const row = document.createElement('div');
   row.className = 'outfit-row';
-  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 32px;gap:.4rem;margin-bottom:.4rem;align-items:center;';
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 110px 36px;gap:.5rem;margin-bottom:.5rem;align-items:center;';
   row.innerHTML = `
-    <input class="inp outfit-name" placeholder="e.g. Bridal Lehenga" value="${outfit}" style="font-size:.85rem;"/>
-    <input class="inp outfit-amount" type="number" placeholder="₹ Amount" value="${amount}" oninput="updateOrderTotals()" style="font-size:.85rem;"/>
-    <button type="button" onclick="this.parentElement.remove();updateOrderTotals();" style="background:none;border:1px solid var(--rose);color:var(--red);padding:.3rem;cursor:pointer;border-radius:2px;font-size:.9rem;line-height:1;min-height:36px;">✕</button>
+    <input class="inp outfit-name" placeholder="e.g. Bridal Lehenga" value="${outfit}" style="font-size:.85rem;margin:0;"/>
+    <input class="inp outfit-amount" type="number" placeholder="₹ Amount" value="${amount}" oninput="updateOrderTotals()" style="font-size:.85rem;text-align:right;margin:0;"/>
+    <button type="button" onclick="removeOutfitRow(this)" style="background:#fff0f0;border:1px solid var(--rose);color:var(--red);cursor:pointer;border-radius:3px;font-size:1rem;height:42px;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>
   `;
   list.appendChild(row);
+  updateOrderTotals();
+};
+
+window.removeOutfitRow = function(btn) {
+  const list = document.getElementById('outfits-list');
+  if(list.children.length<=1) {
+    // Don't remove last row, just clear it
+    btn.parentElement.querySelector('.outfit-name').value='';
+    btn.parentElement.querySelector('.outfit-amount').value='';
+  } else {
+    btn.parentElement.remove();
+  }
   updateOrderTotals();
 };
 
