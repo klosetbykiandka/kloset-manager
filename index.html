@@ -1139,12 +1139,87 @@ const MM = {
   length:['Blazer Length','Kurta Length','Short Kurta Length','Sherwani Length','Shirt Length','Pant Waist','Pant Length','Dhoti Length','Trouser Length','Loose Pant Length','Cross']
 };
 
+// Measurement field name translations
+const MEAS_NAMES = {
+  en:{
+    'Shoulder':'Shoulder','Upper Chest':'Upper Chest','Middle Chest':'Middle Chest',
+    'Blouse Waist':'Blouse Waist','Blouse Length':'Blouse Length','Front Cross':'Front Cross',
+    'Back Cross':'Back Cross','Dat Point':'Dat Point','Dat UV':'Dat UV','Top Waist':'Top Waist',
+    'Hip':'Hip','Arm Hole Round':'Arm Hole Round','Bicep Round':'Bicep Round',
+    'Short Hand Length':'Short Hand Length','Short Hand Round':'Short Hand Round',
+    'Elbow Hand Length':'Elbow Hand Length','Elbow Hand Round':'Elbow Hand Round',
+    '3/4th Hand Length':'3/4th Hand Length','3/4th Hand Round':'3/4th Hand Round',
+    'Full Hand Length':'Full Hand Length','Full Hand Round':'Full Hand Round',
+    'Front Neck Deep':'Front Neck Deep','Back Neck Deep':'Back Neck Deep','Collar':'Collar',
+    'Top Length':'Top Length','Frock Length':'Frock Length','Anarkali Length':'Anarkali Length',
+    'Full Gown Length':'Full Gown Length','Short Frock Length':'Short Frock Length',
+    'Kurti Length':'Kurti Length','Side Cut/Slit':'Side Cut/Slit','Pant Waist':'Pant Waist',
+    'Lehenga Waist':'Lehenga Waist','Pant Length':'Pant Length','Lehenga Length':'Lehenga Length',
+    'Plazzo Pant Length':'Plazzo Pant Length','Pant Length Round':'Pant Length Round',
+    'Thigh':'Thigh','Knee':'Knee','Cross':'Cross',
+    'Chest':'Chest','Waist':'Waist','Blazer Length':'Blazer Length','Kurta Length':'Kurta Length',
+    'Short Kurta Length':'Short Kurta Length','Sherwani Length':'Sherwani Length',
+    'Shirt Length':'Shirt Length','Dhoti Length':'Dhoti Length','Trouser Length':'Trouser Length',
+    'Loose Pant Length':'Loose Pant Length','Bicep':'Bicep',
+    'Full Hand Length Round':'Full Hand Length Round','Half Hand Length':'Half Hand Length',
+    'Half Hand Length Round':'Half Hand Length Round'
+  },
+  hi:{
+    'Shoulder':'कंधा','Upper Chest':'ऊपरी छाती','Middle Chest':'मध्य छाती',
+    'Blouse Waist':'ब्लाउज कमर','Blouse Length':'ब्लाउज लंबाई','Front Cross':'फ्रंट क्रॉस',
+    'Back Cross':'बैक क्रॉस','Dat Point':'डेट पॉइंट','Dat UV':'डेट यूवी','Top Waist':'ऊपरी कमर',
+    'Hip':'कूल्हा','Arm Hole Round':'बाजू छेद','Bicep Round':'बाईसेप गोलाई',
+    'Short Hand Length':'छोटी आस्तीन लंबाई','Short Hand Round':'छोटी आस्तीन गोलाई',
+    'Elbow Hand Length':'कोहनी लंबाई','Elbow Hand Round':'कोहनी गोलाई',
+    '3/4th Hand Length':'3/4 लंबाई','3/4th Hand Round':'3/4 गोलाई',
+    'Full Hand Length':'पूरी आस्तीन लंबाई','Full Hand Round':'पूरी आस्तीन गोलाई',
+    'Front Neck Deep':'सामने गर्दन गहराई','Back Neck Deep':'पीछे गर्दन गहराई','Collar':'कॉलर',
+    'Top Length':'टॉप लंबाई','Frock Length':'फ्रॉक लंबाई','Anarkali Length':'अनारकली लंबाई',
+    'Full Gown Length':'पूरा गाउन लंबाई','Short Frock Length':'छोटा फ्रॉक','Kurti Length':'कुर्ती लंबाई',
+    'Side Cut/Slit':'साइड कट','Pant Waist':'पैंट कमर','Lehenga Waist':'लहंगा कमर',
+    'Pant Length':'पैंट लंबाई','Lehenga Length':'लहंगा लंबाई','Plazzo Pant Length':'प्लाजो लंबाई',
+    'Pant Length Round':'पैंट गोलाई','Thigh':'जांघ','Knee':'घुटना','Cross':'क्रॉस',
+    'Chest':'छाती','Waist':'कमर','Blazer Length':'ब्लेजर लंबाई','Kurta Length':'कुर्ता लंबाई',
+    'Short Kurta Length':'छोटा कुर्ता','Sherwani Length':'शेरवानी लंबाई',
+    'Shirt Length':'शर्ट लंबाई','Dhoti Length':'धोती लंबाई','Trouser Length':'ट्राउजर लंबाई',
+    'Loose Pant Length':'ढीला पैंट','Bicep':'बाईसेप',
+    'Full Hand Length Round':'पूरी आस्तीन गोलाई','Half Hand Length':'आधी आस्तीन',
+    'Half Hand Length Round':'आधी आस्तीन गोलाई'
+  },
+  te:{
+    'Shoulder':'భుజం','Upper Chest':'ఎగువ ఛాతీ','Middle Chest':'మధ్య ఛాతీ',
+    'Blouse Waist':'బ్లౌజ్ నడుము','Blouse Length':'బ్లౌజ్ పొడవు','Front Cross':'ముందు క్రాస్',
+    'Back Cross':'వెనక క్రాస్','Dat Point':'డాట్ పాయింట్','Dat UV':'డాట్ యూవీ','Top Waist':'పై నడుము',
+    'Hip':'పిరుదులు','Arm Hole Round':'చేతి రంధ్రం','Bicep Round':'బైసెప్ కొలత',
+    'Short Hand Length':'చిన్న చేతి పొడవు','Short Hand Round':'చిన్న చేతి చుట్టు',
+    'Elbow Hand Length':'మోచేతి పొడవు','Elbow Hand Round':'మోచేతి చుట్టు',
+    '3/4th Hand Length':'3/4 పొడవు','3/4th Hand Round':'3/4 చుట్టు',
+    'Full Hand Length':'పూర్తి చేతి పొడవు','Full Hand Round':'పూర్తి చేతి చుట్టు',
+    'Front Neck Deep':'ముందు మెడ లోతు','Back Neck Deep':'వెనక మెడ లోతు','Collar':'కాలర్',
+    'Top Length':'టాప్ పొడవు','Frock Length':'ఫ్రాక్ పొడవు','Anarkali Length':'అనార్కలి పొడవు',
+    'Full Gown Length':'పూర్తి గౌన్ పొడవు','Short Frock Length':'చిన్న ఫ్రాక్','Kurti Length':'కుర్తీ పొడవు',
+    'Side Cut/Slit':'సైడ్ కట్','Pant Waist':'పాంట్ నడుము','Lehenga Waist':'లెహంగా నడుము',
+    'Pant Length':'పాంట్ పొడవు','Lehenga Length':'లెహంగా పొడవు','Plazzo Pant Length':'ప్లాజో పొడవు',
+    'Pant Length Round':'పాంట్ చుట్టు','Thigh':'తొడ','Knee':'మోకాలు','Cross':'క్రాస్',
+    'Chest':'ఛాతీ','Waist':'నడుము','Blazer Length':'బ్లేజర్ పొడవు','Kurta Length':'కుర్తా పొడవు',
+    'Short Kurta Length':'చిన్న కుర్తా','Sherwani Length':'షేర్వాని పొడవు',
+    'Shirt Length':'షర్ట్ పొడవు','Dhoti Length':'ధోతి పొడవు','Trouser Length':'ట్రౌజర్ పొడవు',
+    'Loose Pant Length':'వదులు పాంట్','Bicep':'బైసెప్',
+    'Full Hand Length Round':'పూర్తి చేతి చుట్టు','Half Hand Length':'సగం చేతి పొడవు',
+    'Half Hand Length Round':'సగం చేతి చుట్టు'
+  }
+};
+
+function getMeasName(field) {
+  return (MEAS_NAMES[currentLang]||MEAS_NAMES.en)[field] || field;
+}
+
 function buildMeasSection(title, fields, cls, existingMeas={}) {
   const t = T();
   return `<div style="margin-bottom:.8rem;">
     <div class="meas-head ${cls}">${title}</div>
     ${fields.map(f=>`<div class="meas-row">
-      <div class="meas-name">${f}</div>
+      <div class="meas-name">${getMeasName(f)}</div>
       <input class="meas-inp" type="number" step=".5" data-field="${f}" data-key="v" value="${existingMeas[f]?.v||''}" placeholder="${t.phInches||'inches'}"/>
       <input class="meas-note" type="text" data-field="${f}" data-key="n" value="${existingMeas[f]?.n||''}" placeholder="${t.phNotes||'notes'}"/>
     </div>`).join('')}
